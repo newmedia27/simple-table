@@ -53,23 +53,52 @@ export default function RenderTable(props) {
 		const target = editor?.editor.querySelector(`[data-position='${position}']`)
 		// console.log(position, "TARGET")
 		if (target) {
-			console.log(block.getText(), "TEXT")
+            console.log(block.getText(),'TEXT');
 
-			return createPortal(<EditorBlock {...props}><Cell /></EditorBlock>, target)
+			return createPortal(<EditorBlock {...props} />, target)
 		}
 		return null
 	}
-	const tableKey = block.getKey()
-	const data = block.getData().get("dataTable")
-	console.log(data)
 
-	// if(grid){
-	//     return <DataGrid columns={cols} rows={rows}/>
-	// }
+	const data = block.getData()
+	const tableKey = data.get("tableKey")
+	const arrayMap = data.get("arrayMap")
+	let cols = [
+		// { key: "id", name: "" },
+		// { key: "title", name: "" },
+	]
+
+	let rows = [
+		// { id: 0, title: "titile" },
+		// { id: 1, title: "Demo" },
+		// bfcau-0-1
+	]
+
+	arrayMap.forEach((e, i) => {
+		if (cols.length < e.length) {
+			cols = e
+		}
+		const obj = {}
+		e.forEach((cel, j) => {
+			obj[cel.key] = (
+				<div
+					style={{ width: "100%", height: "100px" }}
+					data-position={`${tableKey}-${i}-${j}`}
+				>
+					{!!((i === 0) & (j === 0)) && <Cell />}
+				</div>
+			)
+		})
+		rows.push(obj)
+	})
+    console.log(rows,'ROWS');
+    if(grid){
+        return <DataGrid columns={cols} rows={rows}/>
+    }
 	return (
 		<table key={tableKey} id={tableKey} border={1}>
 			<tbody>
-				{data.map((row, i) => (
+				{arrayMap.map((row, i) => (
 					<tr key={i}>
 						{row.map((cell, j) => {
 							return (
@@ -78,7 +107,7 @@ export default function RenderTable(props) {
 									data-position={`${tableKey}-${i}-${j}`}
 									style={{ width: "200px" }}
 								>
-									 <Cell />
+									{!!((i === 0) & (j === 0)) && <EditorBlock {...props} />}
 								</td>
 							)
 						})}
