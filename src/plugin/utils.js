@@ -46,7 +46,6 @@ export const handleTabInTable = (
 	}
 	const isTargetTable =
 		targetBlock.getData()?.get("dataType") === "table-cel" && !collapsed
-	console.log(isTargetTable, "dfghjkl")
 	const endOffset = targetBlock.getLength()
 	selection = SelectionState.createEmpty(targetBlock.getKey())
 	selection = selection.merge({
@@ -57,7 +56,6 @@ export const handleTabInTable = (
 }
 
 export const handleKeysCommand = (command, newEditorState) => {
-    console.log(command);
 	switch (command) {
 		case "backspace": {
 			// removing images ("atomic" blocktype) with backspace requires special handling or the image tag and dataUrl can be left in the content but not visible.

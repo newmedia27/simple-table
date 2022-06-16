@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import iconLibrary from './utils/iconLIbrary'
-import { globalStyle, theme } from './utils/theme.config'
+import iconLibrary from './lib/utils/iconLIbrary'
+import { globalStyle, theme } from './lib/utils/theme.config'
 import { Global, ThemeProvider } from '@emotion/react'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
-import './index.css';
+import './index.sass';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 config.autoAddCss = false // Tell Font Awesome to skip adding the CSS automatically since it's being imported above

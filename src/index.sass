@@ -1,0 +1,85 @@
+body
+	margin: 0
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen","Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",sans-serif
+	-webkit-font-smoothing: antialiased
+	-moz-osx-font-smoothing: grayscale
+
+code
+	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",monospace
+
+.button
+	display: none
+	position: absolute
+	top: 0
+	right: 20px
+
+.wrapper
+	position: relative
+	padding: 20px 0
+	display: block
+
+	&:hover > button
+		display: block
+
+.public-DraftStyleDefault-block
+	min-height: 100%
+
+.content
+	vertical-align: top
+
+.table__wrapper
+	display: block
+	&>table
+		width: calc(100% - 20px)
+		margin: 0 auto
+
+.toolbar
+	display: flex
+	margin-bottom: 10px
+	&__wrapper
+		display: block
+		width: calc(100% - 20px)
+		margin: 0 auto
+		padding: 10px 0
+	&>li
+		margin-right: 10px
+		list-style: none
+		&>button
+			width: 20px
+			height: 20px
+			background: none
+			border: 1px solid black
+			border-radius: 5px
+			&:hover
+				cursor: pointer
+
+.RenderTableWrapper
+	width: calc(100% - 20px)
+
+.toolbar__button
+	&[data-active="true"]
+		border: 1px solid red
+
+.Editor__wrapper
+	max-width: 90%
+	margin: 0 auto
+	border: 1px solid black
+
+.Draftail-Toolbar
+	display: flex
+.Draftail-ToolbarButton
+	width: 30px
+	height: 30px
+	margin-right: 2px
+.Draftail-ToolbarGroup
+	display: flex
+	justify-content: center
+	align-items: center
+div.dropdown-button
+	&>button
+		padding: 0 5px
+		margin: 0
+		top: 0
+		left: 0
+		bottom: 0
+		right: 0

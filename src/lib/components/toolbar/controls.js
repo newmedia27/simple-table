@@ -14,7 +14,6 @@ import { isNil } from 'lodash';
 const Controls = props => {
   const renderControls = () => {
     let controls = isNil(props.toolbar) ? ['default'] : [...props.toolbar];
-    console.log(controls);
 
     controls = expandControlSets(controls);
     return renderControlGroups(controls);

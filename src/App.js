@@ -1,274 +1,381 @@
-import React, { useRef, useState } from "react"
+import React, {
+	createContext,
+	useRef,
+	useState,
+	useContext,
+	useEffect,
+	useMemo,
+} from "react"
 
 import { DraftailEditor, BLOCK_TYPE, INLINE_STYLE } from "draftail"
-import Button from "./Button"
+import Button from "./lib/components/Button"
 import TablePlugin from "./plugin/TablePlugin"
+import Cell from "./lib/components/cell/Cell"
+import { createPortal } from "react-dom"
 import {
-	serialiseEditorStateToRaw,
-	createEditorStateFromRaw,
-} from "draftjs-conductor"
-import { convertToRaw } from "draft-js"
-import { RichUtils } from "draft-js"
-import { EditorState } from "draft-js"
-import { Modifier } from "draft-js"
-import { SelectionState } from "draft-js"
-import { Editor } from "draft-js"
-import Cell from "./components/cell/Cell"
+	ContentState,
+	EditorState,
+	ContentBlock,
+	genKey,
+	Editor,
+	SelectionState,
+	Modifier,
+} from "draft-js"
+import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "./lib/constants"
+import Modal from "./lib/components/modal"
+
+export const ModalCtx = createContext()
+
+const initialModal = {
+	isOpen: false,
+	defaultSchema: null,
+	editorState: null,
+	generalEditorState: null,
+	tableKey: "",
+	tableSchema: null,
+}
 
 export default function App() {
 	const editor = useRef(null)
- console.log(EditorState);
-  const removeSizeDataFromBlock = (newEditorState, block) => {
-   
+	const [modal, setModal] = useState(initialModal)
 
-		const data = block
-			.getData()
-			.delete("height")
-			.delete("width")
-			.delete("imgStyle")
-		block = block.set("data", data)
-		let contentState = newEditorState.getCurrentContent()
-		let blockMap = contentState.getBlockMap()
-		blockMap = blockMap.set(block.getKey(), block)
-		contentState = contentState.set("blockMap", blockMap)
-		newEditorState = EditorState.push(
-			newEditorState,
-			contentState,
-			"change-block-data"
-		)
-		return newEditorState
-	}
-  // const handleKeyCommand = (command, newEditorState) => {
-	// 	switch (command) {
-	// 		case "backspace": {
-	// 			// removing images ("atomic" blocktype) with backspace requires special handling or the image tag and dataUrl can be left in the content but not visible.
-	// 			let contentState = newEditorState.getCurrentContent()
-	// 			let selectionState = newEditorState.getSelection()
-	// 			const startKey = selectionState.getStartKey()
-	// 			const offset = selectionState.getStartOffset()
-	// 			const collapsed = selectionState.isCollapsed()
-	// 			const blockBefore = contentState.getBlockBefore(startKey)
-	// 			const currentBlockType = RichUtils.getCurrentBlockType(newEditorState)
-	// 			if (
-	// 				collapsed &&
-	// 				offset === 0 &&
-	// 				blockBefore &&
-	// 				blockBefore.getType() === "atomic"
-	// 			) {
-	// 				newEditorState = removeSizeDataFromBlock(newEditorState, blockBefore)
-	// 				newEditorState = EditorState.acceptSelection(
-	// 					newEditorState,
-	// 					selectionState
-	// 				)
-	// 				onChange(RichUtils.onBackspace(newEditorState))
-	// 				return "handled"
-	// 			} else if (currentBlockType === "atomic") {
-	// 				const currentBlock = contentState.getBlockForKey(startKey)
-	// 				newEditorState = removeSizeDataFromBlock(newEditorState, currentBlock)
-	// 				newEditorState = EditorState.acceptSelection(
-	// 					newEditorState,
-	// 					selectionState
-	// 				)
-	// 				newEditorState = RichUtils.onBackspace(newEditorState)
-	// 				contentState = newEditorState.getCurrentContent()
-	// 				selectionState = newEditorState.getSelection()
-	// 				const key = selectionState.getAnchorKey()
-	// 				let selection = SelectionState.createEmpty(key)
-	// 				selection = selection.set("focusOffset", 1)
-	// 				contentState = Modifier.removeRange(
-	// 					contentState,
-	// 					selection,
-	// 					"backward"
-	// 				)
-	// 				onChange(
-	// 					EditorState.push(
-	// 						newEditorState,
-	// 						contentState,
-	// 						"backspace-character"
-	// 					)
-	// 				)
-	// 				return "handled"
-	// 			} else if (currentBlockType === "table" && collapsed && offset === 0) {
-	// 				return "handled"
-	// 			} else if (
-	// 				currentBlockType !== "table" &&
-	// 				collapsed &&
-	// 				blockBefore?.getType() === "table" &&
-	// 				offset === 0
-	// 			) {
-	// 				handleTabInTable("previous", true)
-	// 				return "handled"
-	// 			} else if (
-	// 				collapsed &&
-	// 				offset === 0 &&
-	// 				blockBefore?.getType() === "page-break"
-	// 			) {
-	// 				let selection = SelectionState.createEmpty(blockBefore.getKey())
-	// 				contentState = Modifier.setBlockData(contentState, selection, Map({}))
-	// 				contentState = Modifier.setBlockType(
-	// 					contentState,
-	// 					selection,
-	// 					"unstyled"
-	// 				)
-	// 				selection = selection.merge({
-	// 					focusKey: selectionState.getFocusKey(),
-	// 					focusOffset: 0,
-	// 					hasFocus: true,
-	// 				})
-	// 				contentState = Modifier.removeRange(
-	// 					contentState,
-	// 					selection,
-	// 					"backward"
-	// 				)
-	// 				onChange(
-	// 					EditorState.push(newEditorState, contentState, "remove-range")
-	// 				)
-	// 				return "handled"
-	// 			} else if (currentBlockType === "page-break") {
-	// 				contentState = Modifier.setBlockData(
-	// 					contentState,
-	// 					selectionState,
-	// 					Map({})
-	// 				)
-	// 				contentState = Modifier.setBlockType(
-	// 					contentState,
-	// 					selectionState,
-	// 					"unstyled"
-	// 				)
-	// 				let selection = selectionState
-	// 				if (collapsed && contentState.getBlockAfter(startKey)) {
-	// 					selection = selection.merge({
-	// 						focusKey: contentState.getBlockAfter(startKey).getKey(),
-	// 						focusOffset: 0,
-	// 						hasFocus: true,
-	// 					})
-	// 				}
-	// 				contentState = Modifier.removeRange(
-	// 					contentState,
-	// 					selection,
-	// 					"backward"
-	// 				)
-	// 				onChange(
-	// 					EditorState.push(newEditorState, contentState, "remove-range")
-	// 				)
-	// 				return "handled"
-	// 			} else if (
-	// 				collapsed &&
-	// 				offset === 0 &&
-	// 				[
-	// 					"pasted-list-item",
-	// 					"ordered-list-item",
-	// 					"unordered-list-item",
-	// 				].includes(currentBlockType)
-	// 			) {
-	// 				contentState = Modifier.setBlockType(
-	// 					contentState,
-	// 					selectionState,
-	// 					"unstyled"
-	// 				)
-	// 				onChange(
-	// 					EditorState.push(newEditorState, contentState, "change-block-type")
-	// 				)
-	// 				return "handled"
-	// 			} else if (!collapsed) {
-	// 				return handleKeypressWhenSelectionNotCollapsed(newEditorState)
-	// 			} else {
-	// 				return "not-handled"
-	// 			}
-	// 		}
-	// 		case "delete":
-	// 			return handleDeleteKey()
-	// 		case "shiftTab":
-	// 			return "handled"
-	// 		case "tab":
-	// 			return "handled"
-	// 		default:
-	// 			return "not-handled"
-	// 	}
-	// }
-  const handleReturn = (e, editorState) => {    
-      console.log(e,'EEE');
-		if (e.shiftKey) {
-			const newEditorState = RichUtils.insertSoftNewline(editorState)
-			const contentState = Modifier.replaceText(
-				newEditorState.getCurrentContent(),
-				newEditorState.getSelection(),
-				" "
-			)
-			Editor.onChange(
-				EditorState.push(newEditorState, contentState, "insert-characters")
-			)
-			return "handled"
-		} else if (RichUtils.getCurrentBlockType(editorState) === "table") {
-      Editor.onChange(RichUtils.insertSoftNewline(editorState))
-			return "handled"
-		} else if (
-			RichUtils.getCurrentBlockType(editorState) === "pasted-list-item" &&
-			editorState.getSelection().isCollapsed()
-		) {
-			let content = editorState.getCurrentContent()
-			let selection = editorState.getSelection()
-			let currentBlock = content.getBlockForKey(selection.getAnchorKey())
-			content = Modifier.splitBlock(content, selection)
-			let newEditorState = EditorState.push(
-				editorState,
-				content,
-				selection,
-				"split-block"
-			)
-			let nextBlock = content.getBlockAfter(selection.getAnchorKey())
-			const key = nextBlock.getKey()
-			while (nextBlock?.getType() === "pasted-list-item") {
-				let data = currentBlock.getData()
-				data = data.merge({
-					listStart: +data.get("listStart") > 0 ? data.get("listStart") + 1 : 0,
-				})
-				content = Modifier.setBlockData(
-					newEditorState.getCurrentContent(),
-					SelectionState.createEmpty(nextBlock.getKey()),
-					data
-				)
-				newEditorState = EditorState.push(
-					newEditorState,
-					content,
-					"change-block-data"
-				)
-				currentBlock = content.getBlockForKey(nextBlock.getKey())
-				nextBlock = content.getBlockAfter(nextBlock.getKey())
-			}
-			selection = selection.merge({
-				anchorKey: key,
-				focusKey: key,
-				anchorOffset: 0,
-				focusOffset: 0,
-				hasFocus: true,
+	return (
+		<ModalCtx.Provider
+			value={{
+				modal,
+				handleModal: setModal,
+				handleEditor: Editor.onChange,
+			}}
+		>
+			<div className="Editor__wrapper">
+				<DraftailEditor
+					ref={editor}
+					rawContentState={null}
+					blockTypes={[
+						{ type: BLOCK_TYPE.HEADER_THREE },
+						{ type: BLOCK_TYPE.UNORDERED_LIST_ITEM },
+					]}
+					inlineStyles={[
+						{ type: INLINE_STYLE.BOLD },
+						{ type: INLINE_STYLE.ITALIC },
+					]}
+					controls={[(props) => <Button editor={editor} {...props} />]}
+					plugins={[TablePlugin()]}
+				/>
+			</div>
+
+			<Modal
+				isOpen={modal.isOpen}
+				onClose={() => {
+					setModal((s) => ({
+						...s,
+						isOpen: false,
+					}))
+				}}
+			>
+				{(close) => <ModalTable closeModal={close} />}
+			</Modal>
+		</ModalCtx.Provider>
+	)
+}
+
+const initialRow = { order: 0, cells: [] }
+const initialCell = {
+	order: 0,
+	rowKey: "",
+	editorState: EditorState.createEmpty(),
+}
+const tolbarStyleButtons = inlineStylesTypes.map((s) => ({
+	name: s.charAt(0),
+	className: "toolbar__button",
+	dataStyle: s,
+}))
+
+const blockTypes = [...HEADER_TYPES, ...BLOCK_TYPES]
+
+function ModalTable({ closeModal }) {
+	const modalCtx = useContext(ModalCtx)
+	const { modal } = modalCtx
+	const [row, setRow] = useState(modal.row || null)
+	const [cell, setCell] = useState(modal.cell || null)
+	const [active, setActive] = useState("")
+	const [styleKey, setStyleKey] = useState({
+		event: "",
+		eventState: [],
+	})
+	const [headerKey, setHeaderKey] = useState({})
+	const { defaultSchema } = modal
+
+	function createState() {
+		const rowObject = {}
+		const cellObject = {}
+		defaultSchema.forEach((r, i) => {
+			const rowKey = genKey()
+			rowObject[rowKey] = { ...initialRow, order: i }
+			r.forEach((c, j) => {
+				const cellKey = genKey()
+				cellObject[cellKey] = {
+					...initialCell,
+					rowKey,
+					order: j,
+					row: i,
+					cellKey,
+				}
+				rowObject[rowKey].cells.push(cellKey)
 			})
-			newEditorState = EditorState.forceSelection(newEditorState, selection)
-      Editor.onChange(newEditorState)
-			return "handled"
+		})
+		setRow(rowObject)
+		setCell(cellObject)
+	}
+
+	useEffect(() => {
+		if (modal.isOpen && defaultSchema && !modal.tableSchema) {
+			createState()
 		}
-		return "not-handled"
+	}, [modal])
+
+	const renderSchema = useMemo(() => {
+		if (!row || !cell) {
+			return []
+		}
+
+		const rows = Object.keys(row)
+			.map((e) => {
+				return Object.keys(cell)
+					.filter((c) => cell[c].rowKey === e)
+					.sort(function (a, b) {
+						if (a.order > b.order) {
+							return 1
+						}
+						if (a.order < b.order) {
+							return -1
+						}
+						return 0
+					})
+			})
+			.sort(function (a, b) {
+				if (a.order > b.order) {
+					return 1
+				}
+				if (a.order < b.order) {
+					return -1
+				}
+				return 0
+			})
+		return rows
+	}, [row, cell])
+
+	function handleSave() {
+		const getSchema = renderSchema
+
+		const prepareSchema = getSchema.map((r) =>
+			r.map((c) => {
+				const contentState = cell[c].editorState.getCurrentContent()
+				cell[c]["contentState"] = contentState
+				return cell[c]
+			})
+		)
+		const { generalEditorState } = modal
+		let contentState = generalEditorState.getCurrentContent()
+		let selection = generalEditorState.getSelection()
+		contentState = Modifier.splitBlock(contentState, selection)
+		const blockArray = contentState.getBlocksAsArray()
+		const currBlock = blockArray.find(
+			(e) => e.getData().get("tableKey") === modal.tableKey
+		)
+		const index = blockArray.findIndex((block) => block === currBlock)
+		const data = currBlock.getData()
+		const newData = data
+			.set("tableSchema", prepareSchema)
+			.set("row", row)
+			.set("cell", cell)
+		const newBlock = new ContentBlock({
+			key: genKey(),
+			type: "table",
+			text: " ",
+			data: newData,
+		})
+
+		blockArray.splice(index, 1, newBlock)
+
+		const entityMap = contentState.getEntityMap()
+		contentState = ContentState.createFromBlockArray(blockArray, entityMap)
+		console.log(blockArray, "CONTENT", modal.tableKey)
+		let newEditorState = EditorState.push(
+			generalEditorState,
+			contentState,
+			"insert-fragment"
+		)
+		const key = blockArray[0].getKey()
+		selection = SelectionState.createEmpty(key)
+		newEditorState = EditorState.acceptSelection(newEditorState, selection)
+		modal.onChange(newEditorState)
+		closeModal()
+	}
+
+	function handleCol({ currentTarget }) {
+		console.log(row, "ROW")
+		console.log(cell, "COL")
+		const type = currentTarget.getAttribute("data-value")
+		console.log(type)
+		let rows = Object.keys(row)
+			.map((e) => {
+				return Object.keys(cell)
+					.filter((c) => cell[c].rowKey === e)
+					.sort(function (a, b) {
+						if (a.order > b.order) {
+							return 1
+						}
+						if (a.order < b.order) {
+							return -1
+						}
+						return 0
+					})
+					.map((k) => cell[k])
+			})
+			.sort(function (a, b) {
+				if (a.order > b.order) {
+					return 1
+				}
+				if (a.order < b.order) {
+					return -1
+				}
+				return 0
+			})
+		if (active) {
+			const { order } = cell[active]
+			rows.forEach((e) => {
+				const curIndex = e.findIndex((c) => c.order === order)
+				const updateIndex = curIndex + +type
+				const rowKey = e[0].rowKey
+				e.splice(updateIndex, 0, { ...initialCell, rowKey, cellKey: genKey() })
+				console.log(curIndex, "INDEX", updateIndex)
+			})
+		} else {
+			rows.forEach((e) => {
+				const rowKey = e[0].rowKey
+				e.push({ ...initialCell, rowKey, cellKey: genKey() })
+			})
+		}
+
+		const rowState = {}
+		const cellState = {}
+
+		rows.forEach((r, i) => {
+			r.forEach((c, j) => {
+				if (!rowState[c.rowKey]) {
+					rowState[c.rowKey] = []
+				}
+				rowState[c.rowKey].push(c.cellKey)
+				cellState[c.cellKey] = { ...c, row: i, order: j }
+			})
+		})
+
+		setRow(rowState)
+		setCell(cellState)
+	}
+
+	if (!modal.isOpen) {
+		return null
+	}
+
+	function handleToolbar(e) {
+		e.preventDefault()
+		const style = e.target.getAttribute("data-style")
+		setStyleKey((s) => {
+			const styleInArray = s.eventState.includes(style)
+			let state = []
+			if (styleInArray) {
+				state = s.eventState.filter((k) => k !== style)
+			} else {
+				state = [...s.eventState, style]
+			}
+			return {
+				...s,
+				event: style,
+				eventState: state,
+			}
+		})
+	}
+	const handleHeaderTypes = (e) => {
+		e.preventDefault()
+		const style = e.target.getAttribute("data-style")
+		if (active) {
+			setHeaderKey((s) => {
+				if (!s[active]) {
+					s[active] = {}
+				}
+				if (s[active] === style) {
+					return { ...s, [active]: "" }
+				}
+				return { ...s, [active]: style }
+			})
+		}
 	}
 	return (
-    <>
-    	<DraftailEditor
-			ref={editor}
-			rawContentState={null}
-			blockTypes={[
-				{ type: BLOCK_TYPE.HEADER_THREE },
-				{ type: BLOCK_TYPE.UNORDERED_LIST_ITEM },
-			]}
-			inlineStyles={[
-				{ type: INLINE_STYLE.BOLD },
-				{ type: INLINE_STYLE.ITALIC },
-			]}
-			controls={[(props) => <Button editor={editor} {...props} />]}
-			plugins={[TablePlugin()]}
-      // handleKeyCommand={props=>{console.log(props,'KEYS')}}
-      handleReturn={(e, editorState) => handleReturn(e, editorState)}
-		/>
-    {/* <Cell/> */}
-    </>
-	
+		<div className="table__wrapper">
+			<div className="toolbar__wrapper">
+				<ul className="toolbar">
+					{tolbarStyleButtons.map((e) => (
+						<li key={e.dataStyle}>
+							<button
+								data-style={e.dataStyle}
+								data-active={styleKey.eventState.some((k) => k === e.dataStyle)}
+								className={e.className}
+								onMouseDown={handleToolbar}
+							>
+								{e.name}
+							</button>
+						</li>
+					))}
+					<ul className="toolbar">
+						{blockTypes.map((e) => (
+							<li key={e.label}>
+								<button
+									onMouseDown={handleHeaderTypes}
+									data-style={e.style}
+									data-active={
+										headerKey[active] && headerKey[active] === e.style
+									}
+									className="toolbar__button"
+								>
+									{e.label}
+								</button>
+							</li>
+						))}
+					</ul>
+				</ul>
+			</div>
+			<div className="table__wrapper">
+				<table>
+					<tbody>
+						{renderSchema.map((row, j) => (
+							<tr key={j}>
+								{row.map((cel, i) => (
+									<Cell
+										key={cel}
+										index={i}
+										cellKey={cel}
+										{...cell[cel]}
+										onChange={setCell}
+										setActive={setActive}
+										styleKey={styleKey}
+										headerKey={headerKey}
+										active={active}
+									/>
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+			<button onClick={handleSave}>save</button>
+			<button onClick={handleCol} data-value={0}>
+				add Col before
+			</button>
+			<button onClick={handleCol} data-value={1}>
+				add Col after
+			</button>
+		</div>
 	)
 }

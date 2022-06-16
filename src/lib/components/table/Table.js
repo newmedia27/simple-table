@@ -2,7 +2,6 @@ import React from "react";
 
 
 const TableWrapper = (props) => {
-  console.log(props,'PROPS');
   const tables = [];
   let tablesCount = -1;
 
