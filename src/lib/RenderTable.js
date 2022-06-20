@@ -15,6 +15,7 @@ export default function RenderTable(props) {
 	const tableSchema = data.get("tableSchema")
 	const row = data.get("row")
 	const cell = data.get("cell")
+	const col = data.get("col")
 	const schema = tableSchema || defaultSchema
 
 	const modalCtx = useContext(ModalCtx)
@@ -29,7 +30,8 @@ export default function RenderTable(props) {
 			tableKey,
 			onChange,
 			row,
-			cell
+			cell,
+			col
 		}))
 	}
 
@@ -76,6 +78,7 @@ export default function RenderTable(props) {
 												key={j}
 												data-position={`${tableKey}-${i}-${j}`}
 												style={{ width: "200px" }}
+												
 											>
 												<div
 													className="content"
@@ -87,9 +90,9 @@ export default function RenderTable(props) {
 									const options = getStateToHtmlOptions(cell.contentState)
 									const content = stateToHTML(cell.contentState, options)
 									return (
-										<td key={cell.cellKey} style={{ width: "200px" }}>
+										<td key={cell.cellKey} style={{ width: "200px" }} className="content">
 											<div className="content" style={{ minHeight: "16px" }}>
-												{parser(content)}
+												{parser(content.replace(/\n/g, ''))}
 											</div>
 										</td>
 									)

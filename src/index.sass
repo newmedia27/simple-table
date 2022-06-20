@@ -26,6 +26,7 @@ code
 
 .content
 	vertical-align: top
+	padding: 10px
 
 .table__wrapper
 	display: block
@@ -83,3 +84,16 @@ div.dropdown-button
 		left: 0
 		bottom: 0
 		right: 0
+
+.table__cell_content
+	li
+		margin-left: 1.5em
+
+td.active
+	border: 1px dashed red !important
+td.content
+	width: 200px
+	border: 1px solid green
+	&:focus-within
+		border: 1px solid blue
+		background: rgba(173,216,230,.4)

@@ -3,6 +3,7 @@ import Editor from "@draft-js-plugins/editor"
 import { RichUtils } from "draft-js"
 import { getSelectionInlineStyle } from "draftjs-utils"
 import "draft-js/dist/Draft.css"
+import classNames from "classnames"
 
 export default function Cell({
 	editorState,
@@ -13,6 +14,7 @@ export default function Cell({
 	setActive,
 	styleKey,
 	headerKey,
+	selectGroup
 }) {
 	const ref = useRef(null)
 	const { eventState, event } = styleKey
@@ -80,8 +82,7 @@ export default function Cell({
 
 	return (
 		<td
-			className="content"
-			style={{ width: "200px", border: "1px solid green" }}
+			className={classNames("content",{active: selectGroup?.some(e=>e===cellKey)})}
 			onFocus={handleFocus}
 			tabIndex={index}
 		>
