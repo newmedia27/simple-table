@@ -14,7 +14,9 @@ export default function Cell({
 	setActive,
 	styleKey,
 	headerKey,
-	selectGroup
+	selectGroup,
+	clicking,
+	enterHandler,
 }) {
 	const ref = useRef(null)
 	const { eventState, event } = styleKey
@@ -58,7 +60,7 @@ export default function Cell({
 	}, [eventState])
 
 	useEffect(() => {
-		if(active === cellKey){
+		if (active === cellKey) {
 			const state = RichUtils.toggleBlockType(editorState, headerKey[cellKey])
 			onChange((s) => ({
 				...s,
@@ -68,7 +70,6 @@ export default function Cell({
 				},
 			}))
 		}
-		
 	}, [headerKey])
 
 	if (!editorState) {
@@ -79,14 +80,22 @@ export default function Cell({
 		ref.current.editor.focus()
 		setActive(cellKey)
 	}
-
+	const handleMouseMove = (e) => {
+		if (clicking) {
+			enterHandler(e)
+		}
+	}
 	return (
 		<td
-			className={classNames("content",{active: selectGroup?.some(e=>e===cellKey)})}
+			className={classNames("content", {
+				active: selectGroup?.includes(cellKey),
+			})}
 			onFocus={handleFocus}
 			tabIndex={index}
+			data-key={cellKey}
+			onMouseEnter={handleMouseMove}
 		>
-			<div className="content" >
+			<div className="content">
 				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
 			</div>
 		</td>

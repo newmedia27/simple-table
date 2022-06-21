@@ -6,7 +6,7 @@ import {
 	Modifier,
 	ContentBlock,
 } from "draft-js"
-import { useContext, useMemo, useState, useEffect } from "react"
+import { useContext, useMemo, useState, useEffect, useCallback } from "react"
 import { ModalCtx } from "../../App"
 import Cell from "../components/cell/Cell"
 import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "../constants"
@@ -26,6 +26,7 @@ const tolbarStyleButtons = inlineStylesTypes.map((s) => ({
 const blockTypes = [...HEADER_TYPES, ...BLOCK_TYPES]
 
 const createIndexes = (arr) => {
+	if (!arr) return null
 	return arr.reduce((acc, c, i) => {
 		acc[c] = i
 		return acc
@@ -131,7 +132,6 @@ export default function ModalTable({ closeModal }) {
 
 		const entityMap = contentState.getEntityMap()
 		contentState = ContentState.createFromBlockArray(blockArray, entityMap)
-		console.log(blockArray, "CONTENT", modal.tableKey)
 		let newEditorState = EditorState.push(
 			generalEditorState,
 			contentState,
@@ -222,13 +222,13 @@ export default function ModalTable({ closeModal }) {
 			col,
 		}
 		const type = target.getAttribute("data-object")
-		const neededKey = type === 'col' ? "colKey" : "rowKey"
+		const neededKey = type === "col" ? "colKey" : "rowKey"
 
 		const key = cell[active][neededKey]
 
-		const selectedItems = Object.keys(cell).filter(e=>key === cell[e][neededKey])
-		console.log(selectedItems,'DFGHJ');
-
+		const selectedItems = Object.keys(cell).filter(
+			(e) => key === cell[e][neededKey]
+		)
 		setSelectGroup(selectedItems)
 	}
 
@@ -267,27 +267,37 @@ export default function ModalTable({ closeModal }) {
 				</ul>
 			</div>
 			<div className="table__wrapper">
-				<table>
-					<tbody>
-						{renderSchema.map((row, j) => (
-							<tr key={j}>
-								{row.map((cell, i) => (
-									<Cell
-										key={cell.cellKey}
-										index={i}
-										{...cell}
-										onChange={setCell}
-										setActive={setActive}
-										styleKey={styleKey}
-										headerKey={headerKey}
-										active={active}
-										selectGroup={selectGroup}
-									/>
-								))}
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<EditTableWrapper
+					setSelectGroup={setSelectGroup}
+					selectGroup={selectGroup}
+					col={col}
+					row={row}
+					cell={cell}
+				>
+					{({ clicking, enterHandler }) => (
+						<tbody>
+							{renderSchema.map((row, j) => (
+								<tr key={j}>
+									{row.map((cell, i) => (
+										<Cell
+											key={cell.cellKey}
+											index={i}
+											{...cell}
+											onChange={setCell}
+											setActive={setActive}
+											styleKey={styleKey}
+											headerKey={headerKey}
+											active={active}
+											selectGroup={selectGroup}
+											clicking={clicking}
+											enterHandler={enterHandler}
+										/>
+									))}
+								</tr>
+							))}
+						</tbody>
+					)}
+				</EditTableWrapper>
 			</div>
 			<button onClick={handleSave}>save</button>
 			<button onClick={handleCol} data-value={0}>
@@ -305,5 +315,66 @@ export default function ModalTable({ closeModal }) {
 				</button>
 			</div>
 		</div>
+	)
+}
+
+function EditTableWrapper({ children, setSelectGroup, col, row, cell,selectGroup }) {
+	const [clicking, setClicking] = useState(false)
+
+	const colMap = createIndexes(col)
+	const rowMap = createIndexes(row)
+
+	const eventEnter = (e) => {
+		const key = e.currentTarget.dataset.key
+		const currentCell = cell[key]
+		const { rowKey, colKey } = currentCell
+
+		const curColIndex = colMap[colKey]
+		const curRowIndex = rowMap[rowKey]
+
+		const correctCols = Object.keys(colMap).filter(
+			(c) => colMap[c] <= curColIndex
+		)
+		const correctRows = Object.keys(rowMap).filter(
+			(r) => rowMap[r] <= curRowIndex
+		)
+
+		const result = Object.keys(cell).filter((c) => {
+			const rKey = cell[c].rowKey
+			const cKey = cell[c].colKey
+
+			return correctCols.includes(cKey) && correctRows.includes(rKey)
+		})
+
+		setSelectGroup(result)
+	}
+
+	const handleMouseDown = (e) => {
+		if(e.button===0){
+			setClicking(true)
+		}
+		
+	}
+	const handleMouseOver = (e) => {
+		setClicking(false)
+	}
+
+	const handleKeyUp = (e) => {
+		if (e.which === 27 && selectGroup.length) {
+			e.preventDefault()
+			e.stopPropagation()
+			setSelectGroup([])
+		}
+	}
+
+	return (
+		<table
+			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseOver}
+			onMouseLeave={handleMouseOver}
+			onKeyUp={handleKeyUp}
+		>
+			{children({ enterHandler: eventEnter, clicking })}
+		</table>
 	)
 }
