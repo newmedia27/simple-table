@@ -90,10 +90,62 @@ div.dropdown-button
 		margin-left: 1.5em
 
 td.active
-	border: 1px dashed red !important
+	background: rgba(173,216,230,.4)
+	.border
+		background-color: blue
 td.content
+	margin: 0
 	width: 200px
-	border: 1px solid green
+	position: relative
+	border: 1px solid transparent
 	&:focus-within
 		border: 1px solid blue
 		background: rgba(173,216,230,.4)
+
+.border
+	position: absolute
+	background-color: #000
+	&_top
+		height: 1px
+		left: 0
+		right: 0
+		top: -1px
+	&_bottom
+		height: 1px
+		left: 0
+		right: 0
+		bottom: -1px
+		// display: none
+		// &:not(:last-child)
+		// 	display: block
+	&_right
+		width: 1px
+		top: 0
+		bottom: 0
+		right: -1px
+		// display: none
+		// &:not(:last-child)
+		// 	display: block
+	&_left
+		width: 1px
+		top: 0
+		bottom: 0
+		left: -1px
+.table
+	border-spacing: 0px
+	border-collapse: collapse
+
+.context
+	&__menu
+		position: absolute
+		z-index: 2
+		border: 1px solid grey
+		padding: 10px
+	&__overlay
+		display: block
+		position: fixed
+		top: 0
+		left: 0
+		right: 0
+		bottom: 0
+		z-index: 1

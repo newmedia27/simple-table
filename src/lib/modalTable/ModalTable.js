@@ -217,10 +217,7 @@ export default function ModalTable({ closeModal }) {
 		if (!active) {
 			return null
 		}
-		const selectedMap = {
-			row,
-			col,
-		}
+
 		const type = target.getAttribute("data-object")
 		const neededKey = type === "col" ? "colKey" : "rowKey"
 
@@ -231,7 +228,6 @@ export default function ModalTable({ closeModal }) {
 		)
 		setSelectGroup(selectedItems)
 	}
-
 	return (
 		<div className="table__wrapper">
 			<div className="toolbar__wrapper">
@@ -273,6 +269,7 @@ export default function ModalTable({ closeModal }) {
 					col={col}
 					row={row}
 					cell={cell}
+					active={active}
 				>
 					{({ clicking, enterHandler }) => (
 						<tbody>
@@ -318,8 +315,20 @@ export default function ModalTable({ closeModal }) {
 	)
 }
 
-function EditTableWrapper({ children, setSelectGroup, col, row, cell,selectGroup }) {
+function EditTableWrapper({
+	children,
+	setSelectGroup,
+	col,
+	row,
+	cell,
+	selectGroup,
+	active,
+}) {
 	const [clicking, setClicking] = useState(false)
+	const [contextMenu, setContextMenu] = useState({
+		isOpen: false,
+		target: null,
+	})
 
 	const colMap = createIndexes(col)
 	const rowMap = createIndexes(row)
@@ -330,11 +339,15 @@ function EditTableWrapper({ children, setSelectGroup, col, row, cell,selectGroup
 		const { rowKey, colKey } = currentCell
 
 		const curColIndex = colMap[colKey]
+		const startColIndex = colMap[cell[active].colKey]
 		const curRowIndex = rowMap[rowKey]
 
-		const correctCols = Object.keys(colMap).filter(
-			(c) => colMap[c] <= curColIndex
-		)
+		const correctCols = Object.keys(colMap).filter((c) => {
+			if (curColIndex >= startColIndex) {
+				return colMap[c] <= curColIndex && colMap[c] >= startColIndex
+			}
+			return colMap[c] >= curColIndex && colMap[c] <= startColIndex
+		})
 		const correctRows = Object.keys(rowMap).filter(
 			(r) => rowMap[r] <= curRowIndex
 		)
@@ -350,10 +363,9 @@ function EditTableWrapper({ children, setSelectGroup, col, row, cell,selectGroup
 	}
 
 	const handleMouseDown = (e) => {
-		if(e.button===0){
-			setClicking(true)
+		if (e.button === 0) {
+			return setClicking(true)
 		}
-		
 	}
 	const handleMouseOver = (e) => {
 		setClicking(false)
@@ -367,14 +379,59 @@ function EditTableWrapper({ children, setSelectGroup, col, row, cell,selectGroup
 		}
 	}
 
+	const handleContext = (e) => {
+		e.preventDefault()
+		console.log(e.target.getBoundingClientRect(), "TARGET")
+		setContextMenu({ isOpen: true, target: e.target })
+	}
+
 	return (
-		<table
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleMouseOver}
-			onMouseLeave={handleMouseOver}
-			onKeyUp={handleKeyUp}
-		>
-			{children({ enterHandler: eventEnter, clicking })}
-		</table>
+		<>
+			<table
+				className="table"
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseOver}
+				onMouseLeave={handleMouseOver}
+				onKeyUp={handleKeyUp}
+				onContextMenu={handleContext}
+			>
+				{children({ enterHandler: eventEnter, clicking })}
+			</table>
+			<TableCtxMenu contextMenu={contextMenu} changeMenu={setContextMenu}>
+				context
+			</TableCtxMenu>
+		</>
+	)
+}
+
+function TableCtxMenu({ contextMenu, changeMenu }) {
+	const { isOpen, target } = contextMenu
+	if (!isOpen) {
+		return null
+	}
+	const { top, left } = target.getBoundingClientRect()
+	return (
+		<>
+			<ul className="context__menu" style={{ top: top - 10, left }}>
+				<li>
+					<button>add col before</button>
+				</li>
+				<li>
+					<button>add col after</button>
+				</li>
+				<li>
+					<button>add row before</button>
+				</li>
+				<li>
+					<button>add row after</button>
+				</li>
+			</ul>
+			<span
+				className="context__overlay"
+				onClick={() => {
+					changeMenu({ isOpen: false, target: false })
+				}}
+			/>
+		</>
 	)
 }

@@ -85,6 +85,7 @@ export default function Cell({
 			enterHandler(e)
 		}
 	}
+	console.log('active :>> ', active);
 	return (
 		<td
 			className={classNames("content", {
@@ -95,6 +96,10 @@ export default function Cell({
 			data-key={cellKey}
 			onMouseEnter={handleMouseMove}
 		>
+			<div className="border border_top"/>
+			<div className="border border_left"/>
+			<div className="border border_right"/>
+			<div className="border border_bottom"/>
 			<div className="content">
 				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
 			</div>

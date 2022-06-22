@@ -31,7 +31,7 @@ export default function RenderTable(props) {
 			onChange,
 			row,
 			cell,
-			col
+			col,
 		}))
 	}
 
@@ -78,7 +78,6 @@ export default function RenderTable(props) {
 												key={j}
 												data-position={`${tableKey}-${i}-${j}`}
 												style={{ width: "200px" }}
-												
 											>
 												<div
 													className="content"
@@ -90,9 +89,17 @@ export default function RenderTable(props) {
 									const options = getStateToHtmlOptions(cell.contentState)
 									const content = stateToHTML(cell.contentState, options)
 									return (
-										<td key={cell.cellKey} style={{ width: "200px" }} className="content">
+										<td
+											key={cell.cellKey}
+											style={{ width: "200px" }}
+											className="content"
+										>
+											<div className="border border_top" />
+											<div className="border border_left" />
+											<div className="border border_right" />
+											<div className="border border_bottom" />
 											<div className="content" style={{ minHeight: "16px" }}>
-												{parser(content.replace(/\n/g, ''))}
+												{parser(content.replace(/\n/g, ""))}
 											</div>
 										</td>
 									)
@@ -100,7 +107,6 @@ export default function RenderTable(props) {
 							</tr>
 						))}
 					</tbody>
-
 				</table>
 				<button className="button" onClick={handleModalChange}>
 					Edit
