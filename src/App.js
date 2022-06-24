@@ -7,6 +7,7 @@ import { Editor } from "draft-js"
 import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "./lib/constants"
 import Modal from "./lib/components/modal"
 import ModalTable from "./lib/modalTable/ModalTable"
+import Toolbar from "./lib/modalTable/modal-toolbar/Toolbar"
 
 export const ModalCtx = createContext()
 

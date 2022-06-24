@@ -1,9 +1,10 @@
-import React, { useRef, useEffect, useCallback } from "react"
+import React, { useRef, useEffect, useCallback, useMemo } from "react"
 import Editor from "@draft-js-plugins/editor"
 import { RichUtils } from "draft-js"
 import { getSelectionInlineStyle } from "draftjs-utils"
 import "draft-js/dist/Draft.css"
 import classNames from "classnames"
+import Resizeble from "../resizeble/Resizeble"
 
 export default function Cell({
 	editorState,
@@ -17,9 +18,15 @@ export default function Cell({
 	selectGroup,
 	clicking,
 	enterHandler,
+	aligment,
+	setSelectGroup,
 }) {
 	const ref = useRef(null)
 	const { eventState, event } = styleKey
+	const activeGroup = useMemo(
+		() => selectGroup?.includes(cellKey),
+		[selectGroup]
+	)
 	const changeStyles = useCallback(
 		(state) => {
 			const styles = getSelectionInlineStyle(state)
@@ -79,27 +86,28 @@ export default function Cell({
 	const handleFocus = () => {
 		ref.current.editor.focus()
 		setActive(cellKey)
+		if (!activeGroup) {
+			setSelectGroup([])
+		}
 	}
 	const handleMouseMove = (e) => {
 		if (clicking) {
 			enterHandler(e)
 		}
 	}
-	console.log('active :>> ', active);
+	console.log("active :>> ", aligment)
 	return (
 		<td
 			className={classNames("content", {
-				active: selectGroup?.includes(cellKey),
+				active: activeGroup,
 			})}
 			onFocus={handleFocus}
 			tabIndex={index}
 			data-key={cellKey}
 			onMouseEnter={handleMouseMove}
+			style={{ textAlign: aligment }}
 		>
-			<div className="border border_top"/>
-			<div className="border border_left"/>
-			<div className="border border_right"/>
-			<div className="border border_bottom"/>
+			<Resizeble />
 			<div className="content">
 				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
 			</div>

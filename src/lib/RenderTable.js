@@ -16,6 +16,8 @@ export default function RenderTable(props) {
 	const row = data.get("row")
 	const cell = data.get("cell")
 	const col = data.get("col")
+	const aligment = data.get('aligment')
+
 	const schema = tableSchema || defaultSchema
 
 	const modalCtx = useContext(ModalCtx)
@@ -32,6 +34,7 @@ export default function RenderTable(props) {
 			row,
 			cell,
 			col,
+			aligment
 		}))
 	}
 
@@ -88,11 +91,13 @@ export default function RenderTable(props) {
 									}
 									const options = getStateToHtmlOptions(cell.contentState)
 									const content = stateToHTML(cell.contentState, options)
+									const aligment = cell?.aligment || 'center'
 									return (
 										<td
 											key={cell.cellKey}
-											style={{ width: "200px" }}
+											style={{ width: "200px", textAlign: aligment }}
 											className="content"
+
 										>
 											<div className="border border_top" />
 											<div className="border border_left" />

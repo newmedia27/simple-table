@@ -11,7 +11,7 @@ export default function CreateTableComponent(props) {
 		const { onChange } = blockProps.getProps()
 		const createrBlock = blocks[index]
 		const { data } = createrBlock
-		const { rows, cols, tableKey } = data
+		const { rows, cols, tableKey, aligment } = data
 		const colArr = Array(cols)
 			.fill(1)
 			.map((e) => ({ key: genKey() }))
@@ -20,7 +20,7 @@ export default function CreateTableComponent(props) {
 
 		let dataMap = Map({
 			tableKey,
-			"text-align": "center",
+			aligment,
 			dataType: "table-cel",
 		})
 

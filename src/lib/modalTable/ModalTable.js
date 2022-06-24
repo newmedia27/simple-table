@@ -6,16 +6,25 @@ import {
 	Modifier,
 	ContentBlock,
 } from "draft-js"
-import { useContext, useMemo, useState, useEffect, useCallback } from "react"
+import {
+	useContext,
+	useMemo,
+	useState,
+	useEffect,
+	useRef,
+	Children,
+	cloneElement,
+} from "react"
 import { ModalCtx } from "../../App"
 import Cell from "../components/cell/Cell"
 import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "../constants"
+import Toolbar from "./modal-toolbar/Toolbar"
 
-const initialRow = { order: 0, cells: [] }
 const initialCell = {
 	rowKey: "",
 	colKey: "",
 	editorState: EditorState.createEmpty(),
+	aligment: "left",
 }
 const tolbarStyleButtons = inlineStylesTypes.map((s) => ({
 	name: s.charAt(0),
@@ -46,14 +55,14 @@ export default function ModalTable({ closeModal }) {
 	})
 	const [headerKey, setHeaderKey] = useState({})
 	const [selectGroup, setSelectGroup] = useState([])
+	const [aligment, setAligment] = useState(modal.aligment)
+	const [groupAligment, setGroupAligment] = useState(modal.aligment)
 	const { defaultSchema } = modal
-
 	function createState() {
 		const rowArr = []
 		const cellObject = {}
 		const colArr = []
 		let colKey = null
-
 		defaultSchema.forEach((r, i) => {
 			const rowKey = genKey()
 			rowArr.push(rowKey)
@@ -68,6 +77,7 @@ export default function ModalTable({ closeModal }) {
 					rowKey,
 					cellKey,
 					colKey: colArr[j],
+					aligment,
 				}
 			})
 		})
@@ -144,36 +154,30 @@ export default function ModalTable({ closeModal }) {
 		closeModal()
 	}
 
-	function handleCol({ currentTarget }) {
-		const type = currentTarget.getAttribute("data-value")
-		const colArr = [...col]
-		const needItems = row.length
-		const newColKey = genKey()
-		const insertObject = {}
-		for (let i = 0; i < needItems; i++) {
-			const cellKey = genKey()
-			insertObject[cellKey] = {
-				...initialCell,
-				rowKey: row[i],
-				colKey: newColKey,
-				cellKey,
+	useEffect(() => {
+		setCell((s) => {
+			if(aligment === groupAligment){
+				return s
 			}
-		}
+			if (active) {
+				return { ...s, [active]: { ...s[active], aligment } }
+			}
+			return Object.keys(s).reduce((acc, c) => {
+				acc[c] = { ...s[c], aligment }
+				return acc
+			}, {})
+		})
+	}, [aligment])
 
-		if (active) {
-			const { colKey } = cell[active]
-			const curIndex = col.findIndex((e) => e === colKey)
-			const updateIndex = curIndex + +type
-			colArr.splice(updateIndex, 0, newColKey)
-		} else {
-			colArr.push(newColKey)
-		}
-		setCol(colArr)
-		setCell((s) => ({
-			...s,
-			...insertObject,
-		}))
-	}
+	useEffect(() => {
+		setCell((s) => {
+			const group = selectGroup.reduce((acc, c) => {
+				acc[c] = { ...s[c], aligment: groupAligment }
+				return acc
+			}, {})
+			return { ...s, ...group }
+		})
+	}, [groupAligment])
 
 	if (!modal.isOpen) {
 		return null
@@ -213,21 +217,6 @@ export default function ModalTable({ closeModal }) {
 		}
 	}
 
-	const handleSelect = ({ target }) => {
-		if (!active) {
-			return null
-		}
-
-		const type = target.getAttribute("data-object")
-		const neededKey = type === "col" ? "colKey" : "rowKey"
-
-		const key = cell[active][neededKey]
-
-		const selectedItems = Object.keys(cell).filter(
-			(e) => key === cell[e][neededKey]
-		)
-		setSelectGroup(selectedItems)
-	}
 	return (
 		<div className="table__wrapper">
 			<div className="toolbar__wrapper">
@@ -260,6 +249,13 @@ export default function ModalTable({ closeModal }) {
 							</li>
 						))}
 					</ul>
+					<Toolbar
+						setAligment={setAligment}
+						aligment={aligment}
+						groupAligment={groupAligment}
+						setGroupAligment={setGroupAligment}
+						selectGroup={selectGroup}
+					/>
 				</ul>
 			</div>
 			<div className="table__wrapper">
@@ -270,47 +266,38 @@ export default function ModalTable({ closeModal }) {
 					row={row}
 					cell={cell}
 					active={active}
+					setCol={setCol}
+					setCell={setCell}
 				>
 					{({ clicking, enterHandler }) => (
-						<tbody>
-							{renderSchema.map((row, j) => (
-								<tr key={j}>
-									{row.map((cell, i) => (
-										<Cell
-											key={cell.cellKey}
-											index={i}
-											{...cell}
-											onChange={setCell}
-											setActive={setActive}
-											styleKey={styleKey}
-											headerKey={headerKey}
-											active={active}
-											selectGroup={selectGroup}
-											clicking={clicking}
-											enterHandler={enterHandler}
-										/>
-									))}
-								</tr>
-							))}
-						</tbody>
+						<>
+							<tbody>
+								{renderSchema.map((row, j) => (
+									<tr key={j}>
+										{row.map((cell, i) => (
+											<Cell
+												key={cell.cellKey}
+												index={i}
+												{...cell}
+												onChange={setCell}
+												setActive={setActive}
+												styleKey={styleKey}
+												headerKey={headerKey}
+												active={active}
+												selectGroup={selectGroup}
+												setSelectGroup={setSelectGroup}
+												clicking={clicking}
+												enterHandler={enterHandler}
+											/>
+										))}
+									</tr>
+								))}
+							</tbody>
+						</>
 					)}
 				</EditTableWrapper>
 			</div>
 			<button onClick={handleSave}>save</button>
-			<button onClick={handleCol} data-value={0}>
-				add Col before
-			</button>
-			<button onClick={handleCol} data-value={1}>
-				add Col after
-			</button>
-			<div>
-				<button onClick={handleSelect} data-object="col">
-					select Col
-				</button>
-				<button onClick={handleSelect} data-object="row">
-					select Row
-				</button>
-			</div>
 		</div>
 	)
 }
@@ -323,13 +310,14 @@ function EditTableWrapper({
 	cell,
 	selectGroup,
 	active,
+	setCell,
+	setCol,
 }) {
 	const [clicking, setClicking] = useState(false)
 	const [contextMenu, setContextMenu] = useState({
 		isOpen: false,
 		target: null,
 	})
-
 	const colMap = createIndexes(col)
 	const rowMap = createIndexes(row)
 
@@ -340,6 +328,7 @@ function EditTableWrapper({
 
 		const curColIndex = colMap[colKey]
 		const startColIndex = colMap[cell[active].colKey]
+		const startRowIndex = rowMap[cell[active].rowKey]
 		const curRowIndex = rowMap[rowKey]
 
 		const correctCols = Object.keys(colMap).filter((c) => {
@@ -348,9 +337,12 @@ function EditTableWrapper({
 			}
 			return colMap[c] >= curColIndex && colMap[c] <= startColIndex
 		})
-		const correctRows = Object.keys(rowMap).filter(
-			(r) => rowMap[r] <= curRowIndex
-		)
+		const correctRows = Object.keys(rowMap).filter((r) => {
+			if (curRowIndex >= startRowIndex) {
+				return rowMap[r] <= curRowIndex && rowMap[r] >= startRowIndex
+			}
+			return rowMap[r] >= curRowIndex && rowMap[r] <= startRowIndex
+		})
 
 		const result = Object.keys(cell).filter((c) => {
 			const rKey = cell[c].rowKey
@@ -381,10 +373,79 @@ function EditTableWrapper({
 
 	const handleContext = (e) => {
 		e.preventDefault()
-		console.log(e.target.getBoundingClientRect(), "TARGET")
-		setContextMenu({ isOpen: true, target: e.target })
+		setContextMenu({ isOpen: true, target: e.currentTarget, event: e })
+	}
+	function handleCol({ currentTarget }) {
+		const type = currentTarget.getAttribute("data-value")
+		const colArr = [...col]
+		const needItems = row.length
+		const newColKey = genKey()
+		const insertObject = {}
+		for (let i = 0; i < needItems; i++) {
+			const cellKey = genKey()
+			insertObject[cellKey] = {
+				...initialCell,
+				rowKey: row[i],
+				colKey: newColKey,
+				cellKey,
+			}
+		}
+
+		if (active) {
+			const { colKey } = cell[active]
+			const curIndex = col.findIndex((e) => e === colKey)
+			const updateIndex = curIndex + +type
+			colArr.splice(updateIndex, 0, newColKey)
+		} else {
+			colArr.push(newColKey)
+		}
+		setCol(colArr)
+		setCell((s) => ({
+			...s,
+			...insertObject,
+		}))
+		setContextMenu((s) => ({ ...s, isOpen: false }))
+	}
+	const handleSelect = ({ target }) => {
+		if (!active) {
+			return null
+		}
+
+		const type = target.getAttribute("data-object")
+		const neededKey = type === "col" ? "colKey" : "rowKey"
+
+		const key = cell[active][neededKey]
+
+		const selectedItems = Object.keys(cell).filter(
+			(e) => key === cell[e][neededKey]
+		)
+		setSelectGroup(selectedItems)
+		setContextMenu((s) => ({ ...s, isOpen: false }))
 	}
 
+	const setAlignmentInTable = (alignment, content, blocks) => {
+		// because cell style data is kept in the tableShape array stored with
+		// the first block in the table, we have to update that information here
+		let blockMap = content.getBlockMap()
+		const tableKey = blocks.first().getData().get("tableKey")
+		let firstTableBlock = blockMap.find(
+			(block) => block.getData().get("tablePosition") === `${tableKey}-0-0`
+		)
+		const tableShape = firstTableBlock.getData().get("tableShape")
+		blocks.forEach((block) => {
+			const [_, row, col] = block.getData().get("tablePosition").split("-")
+			tableShape[row][col].style = {
+				...tableShape[row][col].style,
+				"text-align": alignment,
+			}
+		})
+		let data = firstTableBlock.getData()
+		data = data.set("tableShape", tableShape)
+		firstTableBlock = firstTableBlock.merge({ data })
+		blockMap = blockMap.merge([[firstTableBlock.getKey(), firstTableBlock]])
+		content = content.merge({ blockMap })
+		return content
+	}
 	return (
 		<>
 			<table
@@ -398,33 +459,77 @@ function EditTableWrapper({
 				{children({ enterHandler: eventEnter, clicking })}
 			</table>
 			<TableCtxMenu contextMenu={contextMenu} changeMenu={setContextMenu}>
-				context
+				<button onClick={handleCol} data-value={0}>
+					add col before
+				</button>
+				<button onClick={handleCol} data-value={1}>
+					add col after
+				</button>
+				<button onClick={handleSelect} data-object="col">
+					select col
+				</button>
+				<button onClick={handleSelect} data-object="row">
+					select row
+				</button>
 			</TableCtxMenu>
 		</>
 	)
 }
 
-function TableCtxMenu({ contextMenu, changeMenu }) {
-	const { isOpen, target } = contextMenu
+function getPosition(e) {
+	let posx = 0
+	let posy = 0
+
+	if (!e) e = window.event
+
+	if (e.pageX || e.pageY) {
+		posx = e.pageX
+		posy = e.pageY
+	} else if (e.clientX || e.clientY) {
+		posx =
+			e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft
+		posy =
+			e.clientY + document.body.scrollTop + document.documentElement.scrollTop
+	}
+
+	return {
+		x: posx,
+		y: posy,
+	}
+}
+
+function TableCtxMenu({ contextMenu, changeMenu, children }) {
+	const { isOpen, target, event } = contextMenu
+	const [style, setStyle] = useState({})
+	const ref = useRef(null)
+
+	const childrenArray = Children.toArray(children)
+	useEffect(() => {
+		const { x, y } = getPosition(event)
+		if (ref.current) {
+			const w = ref.current.clientWidth
+			const { width } = target.getBoundingClientRect()
+			let left = x - 50
+			if (width - left < w) {
+				left = width - w
+			}
+
+			setStyle({ top: y - 50, left })
+		}
+	}, [event])
+
 	if (!isOpen) {
 		return null
 	}
-	const { top, left } = target.getBoundingClientRect()
 	return (
 		<>
-			<ul className="context__menu" style={{ top: top - 10, left }}>
-				<li>
-					<button>add col before</button>
-				</li>
-				<li>
-					<button>add col after</button>
-				</li>
-				<li>
-					<button>add row before</button>
-				</li>
-				<li>
-					<button>add row after</button>
-				</li>
+			<ul ref={ref} className="context__menu" style={style}>
+				{childrenArray.map((e, i) => {
+					console.log(e.props)
+					return (
+						<li key={i}>{cloneElement(e, { className: "context__item" })}</li>
+					)
+				})}
 			</ul>
 			<span
 				className="context__overlay"

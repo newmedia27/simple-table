@@ -30,6 +30,7 @@ code
 
 .table__wrapper
 	display: block
+	position: relative
 	&>table
 		width: calc(100% - 20px)
 		margin: 0 auto
@@ -102,45 +103,31 @@ td.content
 		border: 1px solid blue
 		background: rgba(173,216,230,.4)
 
-.border
-	position: absolute
-	background-color: #000
-	&_top
-		height: 1px
-		left: 0
-		right: 0
-		top: -1px
-	&_bottom
-		height: 1px
-		left: 0
-		right: 0
-		bottom: -1px
-		// display: none
-		// &:not(:last-child)
-		// 	display: block
-	&_right
-		width: 1px
-		top: 0
-		bottom: 0
-		right: -1px
-		// display: none
-		// &:not(:last-child)
-		// 	display: block
-	&_left
-		width: 1px
-		top: 0
-		bottom: 0
-		left: -1px
 .table
 	border-spacing: 0px
 	border-collapse: collapse
 
 .context
 	&__menu
-		position: absolute
+		position: fixed
 		z-index: 2
 		border: 1px solid grey
+		min-width: 300px
+		background-color: #fff
+
+		&>li
+			list-style: none
+			text-align: left
+			border-bottom: 1px solid grey
+	&__item
 		padding: 10px
+		width: 100%
+		text-align: left
+		background-color: transparent
+		border: 1px solid transparent
+		font-size: 16px
+		&:hover
+			cursor: pointer
 	&__overlay
 		display: block
 		position: fixed
@@ -149,3 +136,9 @@ td.content
 		right: 0
 		bottom: 0
 		z-index: 1
+
+td
+	.public-DraftStyleDefault-block
+		text-align: inherit
+	.DraftEditor-editorContainer, .DraftEditor-root, .public-DraftEditor-content
+		text-align: inherit

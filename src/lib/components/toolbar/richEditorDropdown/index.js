@@ -61,7 +61,6 @@ export default class RichEditorDropdown extends React.Component {
       dropdownOrientation: this.state.orientation,
       dropdownTop: 42,
       onButtonClick: () => this.handleButtonClick(),
-      container: this.props.editor.current?.editorContainer,
       styles: this.state,
       ...(!this.props.allowInput && { onMouseDown: e => e.preventDefault() }),
     };
