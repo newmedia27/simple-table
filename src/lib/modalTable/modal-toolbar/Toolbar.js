@@ -5,7 +5,7 @@ import Content from "./content/Content"
 
 const Toolbar = ({
 	setAligment,
-	aligment,
+	alignment,
 	selectGroup,
 	setGroupAligment,
 }) => {
@@ -18,7 +18,7 @@ const Toolbar = ({
 		return setAligment(type)
 	}
 	const controlProps = {
-		activeOption: dropdownOptions[name].activeOption(aligment),
+		activeOption: dropdownOptions[name].activeOption(alignment?alignment: 'justify'),
 		controlWidth: dropdownOptions[name].controlWidth,
 		dropdownWidth: dropdownOptions[name].dropdownWidth,
 		key: name,

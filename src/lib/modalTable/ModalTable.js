@@ -55,8 +55,8 @@ export default function ModalTable({ closeModal }) {
 	})
 	const [headerKey, setHeaderKey] = useState({})
 	const [selectGroup, setSelectGroup] = useState([])
-	const [aligment, setAligment] = useState(modal.aligment)
-	const [groupAligment, setGroupAligment] = useState(modal.aligment)
+	const [aligment, setAligment] = useState('')
+	const [groupAligment, setGroupAligment] = useState('')
 	const { defaultSchema } = modal
 	function createState() {
 		const rowArr = []
@@ -156,7 +156,7 @@ export default function ModalTable({ closeModal }) {
 
 	useEffect(() => {
 		setCell((s) => {
-			if(aligment === groupAligment){
+			if(!aligment && !groupAligment){
 				return s
 			}
 			if (active) {
@@ -251,7 +251,7 @@ export default function ModalTable({ closeModal }) {
 					</ul>
 					<Toolbar
 						setAligment={setAligment}
-						aligment={aligment}
+						alignment={aligment}
 						groupAligment={groupAligment}
 						setGroupAligment={setGroupAligment}
 						selectGroup={selectGroup}

@@ -42,6 +42,7 @@ export default class RichEditorDropdown extends React.Component {
 
   renderBtnContent() {
     const { name, icon, style } = this.props.activeOption.display;
+
     return (
       <React.Fragment>
         {icon ? <Icon name={icon} /> : null}
