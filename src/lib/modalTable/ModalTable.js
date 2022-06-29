@@ -19,6 +19,7 @@ import { ModalCtx } from "../../App"
 import Cell from "../components/cell/Cell"
 import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "../constants"
 import Toolbar from "./modal-toolbar/Toolbar"
+import "./table.sass"
 
 const initialCell = {
 	rowKey: "",
@@ -31,6 +32,11 @@ const tolbarStyleButtons = inlineStylesTypes.map((s) => ({
 	className: "toolbar__button",
 	dataStyle: s,
 }))
+
+const initCellStyle = {
+	minWidth: 50,
+	width: 200,
+}
 
 const blockTypes = [...HEADER_TYPES, ...BLOCK_TYPES]
 
@@ -47,6 +53,7 @@ export default function ModalTable({ closeModal }) {
 	const { modal } = modalCtx
 	const [row, setRow] = useState(modal.row || null)
 	const [col, setCol] = useState(modal.col || null)
+	const [colStyle, setColStyle] = useState(modal.colStyle || null)
 	const [cell, setCell] = useState(modal.cell || null)
 	const [active, setActive] = useState("")
 	const [styleKey, setStyleKey] = useState({
@@ -55,14 +62,16 @@ export default function ModalTable({ closeModal }) {
 	})
 	const [headerKey, setHeaderKey] = useState({})
 	const [selectGroup, setSelectGroup] = useState([])
-	const [aligment, setAligment] = useState('')
-	const [groupAligment, setGroupAligment] = useState('')
+	const [aligment, setAligment] = useState("")
+	const [groupAligment, setGroupAligment] = useState("")
 	const { defaultSchema } = modal
+
 	function createState() {
 		const rowArr = []
 		const cellObject = {}
 		const colArr = []
 		let colKey = null
+
 		defaultSchema.forEach((r, i) => {
 			const rowKey = genKey()
 			rowArr.push(rowKey)
@@ -131,6 +140,7 @@ export default function ModalTable({ closeModal }) {
 			.set("row", row)
 			.set("cell", cell)
 			.set("col", col)
+			.set("colStyle", colStyle)
 		const newBlock = new ContentBlock({
 			key: genKey(),
 			type: "table",
@@ -156,7 +166,7 @@ export default function ModalTable({ closeModal }) {
 
 	useEffect(() => {
 		setCell((s) => {
-			if(!aligment && !groupAligment){
+			if (!aligment && !groupAligment) {
 				return s
 			}
 			if (active) {
@@ -216,7 +226,7 @@ export default function ModalTable({ closeModal }) {
 			})
 		}
 	}
-
+	console.log(colStyle && colStyle, "ACTIVE")
 	return (
 		<div className="table__wrapper">
 			<div className="toolbar__wrapper">
@@ -258,45 +268,47 @@ export default function ModalTable({ closeModal }) {
 					/>
 				</ul>
 			</div>
-			<div className="table__wrapper">
-				<EditTableWrapper
-					setSelectGroup={setSelectGroup}
-					selectGroup={selectGroup}
-					col={col}
-					row={row}
-					cell={cell}
-					active={active}
-					setCol={setCol}
-					setCell={setCell}
-				>
-					{({ clicking, enterHandler }) => (
-						<>
-							<tbody>
-								{renderSchema.map((row, j) => (
-									<tr key={j}>
-										{row.map((cell, i) => (
-											<Cell
-												key={cell.cellKey}
-												index={i}
-												{...cell}
-												onChange={setCell}
-												setActive={setActive}
-												styleKey={styleKey}
-												headerKey={headerKey}
-												active={active}
-												selectGroup={selectGroup}
-												setSelectGroup={setSelectGroup}
-												clicking={clicking}
-												enterHandler={enterHandler}
-											/>
-										))}
-									</tr>
-								))}
-							</tbody>
-						</>
-					)}
-				</EditTableWrapper>
-			</div>
+			<EditTableWrapper
+				setSelectGroup={setSelectGroup}
+				selectGroup={selectGroup}
+				col={col}
+				row={row}
+				cell={cell}
+				active={active}
+				setCol={setCol}
+				setCell={setCell}
+				colStyle={colStyle}
+				setColStyle={setColStyle}
+			>
+				{({ clicking, enterHandler }) => (
+					<>
+						<tbody>
+							{renderSchema.map((row, j) => (
+								<tr key={j}>
+									{row.map((cell, i) => (
+										<Cell
+											key={cell.cellKey}
+											index={i}
+											{...cell}
+											onChange={setCell}
+											setActive={setActive}
+											styleKey={styleKey}
+											headerKey={headerKey}
+											active={active}
+											selectGroup={selectGroup}
+											setSelectGroup={setSelectGroup}
+											clicking={clicking}
+											enterHandler={enterHandler}
+											setColStyle={setColStyle}
+											cellStyle={colStyle && colStyle[cell.colKey]}
+										/>
+									))}
+								</tr>
+							))}
+						</tbody>
+					</>
+				)}
+			</EditTableWrapper>
 			<button onClick={handleSave}>save</button>
 		</div>
 	)
@@ -312,7 +324,10 @@ function EditTableWrapper({
 	active,
 	setCell,
 	setCol,
+	setColStyle,
+	colStyle,
 }) {
+	const ref = useRef(null)
 	const [clicking, setClicking] = useState(false)
 	const [contextMenu, setContextMenu] = useState({
 		isOpen: false,
@@ -423,33 +438,48 @@ function EditTableWrapper({
 		setContextMenu((s) => ({ ...s, isOpen: false }))
 	}
 
-	const setAlignmentInTable = (alignment, content, blocks) => {
-		// because cell style data is kept in the tableShape array stored with
-		// the first block in the table, we have to update that information here
-		let blockMap = content.getBlockMap()
-		const tableKey = blocks.first().getData().get("tableKey")
-		let firstTableBlock = blockMap.find(
-			(block) => block.getData().get("tablePosition") === `${tableKey}-0-0`
-		)
-		const tableShape = firstTableBlock.getData().get("tableShape")
-		blocks.forEach((block) => {
-			const [_, row, col] = block.getData().get("tablePosition").split("-")
-			tableShape[row][col].style = {
-				...tableShape[row][col].style,
-				"text-align": alignment,
-			}
-		})
-		let data = firstTableBlock.getData()
-		data = data.set("tableShape", tableShape)
-		firstTableBlock = firstTableBlock.merge({ data })
-		blockMap = blockMap.merge([[firstTableBlock.getKey(), firstTableBlock]])
-		content = content.merge({ blockMap })
-		return content
-	}
+	useEffect(() => {
+		if (ref.current && !colStyle && col) {
+			const tableWidth = ref.current.clientWidth
+			const cellWidth = tableWidth / col.length
+			const resizeState = col.reduce((acc, e) => {
+				if (!acc[e]) {
+					acc[e] = {}
+				}
+				acc[e] = { ...initCellStyle, width: cellWidth }
+				return acc
+			}, {})
+			setColStyle(resizeState)
+		}
+	}, [ref.current, colStyle, col])
+
+	// const setAlignmentInTable = (alignment, content, blocks) => {
+	// 	// because cell style data is kept in the tableShape array stored with
+	// 	// the first block in the table, we have to update that information here
+	// 	let blockMap = content.getBlockMap()
+	// 	const tableKey = blocks.first().getData().get("tableKey")
+	// 	let firstTableBlock = blockMap.find(
+	// 		(block) => block.getData().get("tablePosition") === `${tableKey}-0-0`
+	// 	)
+	// 	const tableShape = firstTableBlock.getData().get("tableShape")
+	// 	blocks.forEach((block) => {
+	// 		const [_, row, col] = block.getData().get("tablePosition").split("-")
+	// 		tableShape[row][col].style = {
+	// 			...tableShape[row][col].style,
+	// 			"text-align": alignment,
+	// 		}
+	// 	})
+	// 	let data = firstTableBlock.getData()
+	// 	data = data.set("tableShape", tableShape)
+	// 	firstTableBlock = firstTableBlock.merge({ data })
+	// 	blockMap = blockMap.merge([[firstTableBlock.getKey(), firstTableBlock]])
+	// 	content = content.merge({ blockMap })
+	// 	return content
+	// }
 	return (
-		<>
+		<div className="table__wrapper" ref={ref}>
 			<table
-				className="table"
+				className="table table__edit"
 				onMouseDown={handleMouseDown}
 				onMouseUp={handleMouseOver}
 				onMouseLeave={handleMouseOver}
@@ -472,7 +502,7 @@ function EditTableWrapper({
 					select row
 				</button>
 			</TableCtxMenu>
-		</>
+		</div>
 	)
 }
 
@@ -525,7 +555,6 @@ function TableCtxMenu({ contextMenu, changeMenu, children }) {
 		<>
 			<ul ref={ref} className="context__menu" style={style}>
 				{childrenArray.map((e, i) => {
-					console.log(e.props)
 					return (
 						<li key={i}>{cloneElement(e, { className: "context__item" })}</li>
 					)

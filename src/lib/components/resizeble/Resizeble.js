@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from "react"
 import "./resizeble.sass"
-const Resizeble = ({ colStyle, setColStyle, wrapperRef, colKey }) => {
-	const [start, setStart] = useState({})
+
+const Resizeble = ({ colStyle, setColStyle, colWidth, colKey }) => {
+	const [start, setStart] = useState(null)
 	const ref = useRef(null)
-	let startX, startY, startWidth
+
 	const handleMouseDown = (e) => {
 		initDrag(e)
 	}
+
 	function doDrag(e) {
-		const width = startWidth + e.clientX - startX + "px"
+		const width = start.startWidth + e.clientX - start.startX 
 		setColStyle((s) => ({
 			...s,
 			[colKey]: { ...s[colKey], width },
 		}))
-		console.log(width, "WIDTH")
 	}
 
 	function stopDrag(e) {
@@ -21,13 +22,20 @@ const Resizeble = ({ colStyle, setColStyle, wrapperRef, colKey }) => {
 		document.documentElement.removeEventListener("mouseup", stopDrag, false)
 	}
 	function initDrag(e) {
-		startX = e.clientX
-		startY = e.clientY
-		startWidth = parseInt(wrapperRef.clientWidth, 10)
-		document.documentElement.addEventListener("mousemove", doDrag, false)
-		document.documentElement.addEventListener("mouseup", stopDrag, false)
+		const startX = e.clientX
+		setStart({
+			startX,
+			startWidth: colWidth,
+		})
 	}
 
+	useEffect(() => {
+		if (start) {
+			document.documentElement.addEventListener("mousemove", doDrag, false)
+			document.documentElement.addEventListener("mouseup", stopDrag, false)
+		}
+	}, [start])
+	console.log(colKey,'WIDTH')
 	return (
 		<>
 			<div className="border border_top" />

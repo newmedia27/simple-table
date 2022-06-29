@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { ModalCtx } from "../App"
 import { stateToHTML } from "draft-js-export-html"
 import { getStateToHtmlOptions } from "./renderConfig"
 import parser from "html-react-parser"
 
 export default function RenderTable(props) {
+	const [initialCellWidth, setInitialCellWidt] = useState(200)
+	const wrapperRef = useRef(null)
 	const editor = props.blockProps.getEditorRef()
 	const editorState = props.blockProps.getEditorState()
 	const { onChange } = props.blockProps.getProps()
@@ -16,7 +18,8 @@ export default function RenderTable(props) {
 	const row = data.get("row")
 	const cell = data.get("cell")
 	const col = data.get("col")
-	const aligment = data.get('aligment')
+	const aligment = data.get("aligment")
+	const colStyle = data.get("colStyle")
 
 	const schema = tableSchema || defaultSchema
 
@@ -34,7 +37,8 @@ export default function RenderTable(props) {
 			row,
 			cell,
 			col,
-			aligment
+			aligment,
+			colStyle,
 		}))
 	}
 
@@ -62,9 +66,15 @@ export default function RenderTable(props) {
 		syncContenteditable(props.disabled)
 	}, [props.disabled])
 
+	useEffect(() => {
+		if (wrapperRef.current && schema[0]?.length) {
+			setInitialCellWidt(wrapperRef?.current.clientWidth /  schema[0]?.length)
+		}
+	}, [wrapperRef, schema])
+
 	return (
 		<>
-			<div className="wrapper">
+			<div className="wrapper" ref={wrapperRef}>
 				<table
 					key={tableKey}
 					id={tableKey}
@@ -75,12 +85,13 @@ export default function RenderTable(props) {
 						{schema.map((row, i) => (
 							<tr key={i}>
 								{row.map((cell, j) => {
+									const width = colStyle && colStyle[cell.colKey]?.width
 									if (!cell.contentState) {
 										return (
 											<td
 												key={j}
 												data-position={`${tableKey}-${i}-${j}`}
-												style={{ width: "200px" }}
+												style={{ width: initialCellWidth }}
 											>
 												<div
 													className="content"
@@ -91,13 +102,12 @@ export default function RenderTable(props) {
 									}
 									const options = getStateToHtmlOptions(cell.contentState)
 									const content = stateToHTML(cell.contentState, options)
-									const aligment = cell?.aligment || 'center'
+									const aligment = cell?.aligment || "center"
 									return (
 										<td
 											key={cell.cellKey}
-											style={{ width: "200px", textAlign: aligment }}
+											style={{ width, textAlign: aligment }}
 											className="content"
-
 										>
 											<div className="border border_top" />
 											<div className="border border_left" />

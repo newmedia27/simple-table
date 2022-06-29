@@ -17,7 +17,7 @@ code
 	position: relative
 	padding: 20px 0
 	display: block
-
+	width: calc(100% - 20px)
 	&:hover > button
 		display: block
 
@@ -27,13 +27,6 @@ code
 .content
 	vertical-align: top
 	padding: 10px
-
-.table__wrapper
-	display: block
-	position: relative
-	&>table
-		width: calc(100% - 20px)
-		margin: 0 auto
 
 .toolbar
 	display: flex
@@ -56,7 +49,6 @@ code
 				cursor: pointer
 
 .RenderTableWrapper
-	width: calc(100% - 20px)
 
 .toolbar__button
 	&[data-active="true"]

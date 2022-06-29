@@ -5,6 +5,7 @@ import { getSelectionInlineStyle } from "draftjs-utils"
 import "draft-js/dist/Draft.css"
 import classNames from "classnames"
 import Resizeble from "../resizeble/Resizeble"
+import "./Cell.sass"
 
 export default function Cell({
 	editorState,
@@ -20,6 +21,9 @@ export default function Cell({
 	enterHandler,
 	aligment,
 	setSelectGroup,
+	cellStyle,
+	setColStyle,
+	colKey
 }) {
 	const ref = useRef(null)
 	const { eventState, event } = styleKey
@@ -55,7 +59,6 @@ export default function Cell({
 	useEffect(() => {
 		if (eventState && event) {
 			const addStyleState = changeStyles(editorState)
-			// console.log(event, "STYLE")
 			onChange((s) => ({
 				...s,
 				[cellKey]: {
@@ -95,7 +98,7 @@ export default function Cell({
 			enterHandler(e)
 		}
 	}
-	console.log("active :>> ", aligment)
+
 	return (
 		<td
 			className={classNames("content", {
@@ -105,9 +108,9 @@ export default function Cell({
 			tabIndex={index}
 			data-key={cellKey}
 			onMouseEnter={handleMouseMove}
-			style={{ textAlign: aligment }}
+			style={{ textAlign: aligment, ...cellStyle }}
 		>
-			<Resizeble />
+			<Resizeble setColStyle={setColStyle} colWidth={cellStyle && cellStyle.width} colKey={colKey}/>
 			<div className="content">
 				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
 			</div>
