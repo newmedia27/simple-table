@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Style from './tooltip.style.js';
+import './tooltip.sass';
 
 const Tooltip = props => {
   // ref to the tooltip
@@ -158,7 +158,7 @@ const Tooltip = props => {
   const pointerOuter = props.size === 'sm' ? 8 : 12;
 
   return (
-    <Style
+    <div
       className={`tooltip ${props.orientation} ${props.size}`}
       ref={ref}
       css={[
@@ -216,7 +216,7 @@ const Tooltip = props => {
       data-testid={show ? 'tooltip-in' : 'tooltip-out'}
     >
       {props.children}
-    </Style>
+    </div>
   );
 };
 

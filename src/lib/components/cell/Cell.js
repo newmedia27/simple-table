@@ -23,7 +23,7 @@ export default function Cell({
 	setSelectGroup,
 	cellStyle,
 	setColStyle,
-	colKey
+	colKey,
 }) {
 	const ref = useRef(null)
 	const { eventState, event } = styleKey
@@ -93,6 +93,13 @@ export default function Cell({
 			setSelectGroup([])
 		}
 	}
+
+	const handleBlur = (e) => {
+		if (active === cellKey) {
+			setActive("")
+		}
+	}
+
 	const handleMouseMove = (e) => {
 		if (clicking) {
 			enterHandler(e)
@@ -105,12 +112,17 @@ export default function Cell({
 				active: activeGroup,
 			})}
 			onFocus={handleFocus}
+			onBlur={handleBlur}
 			tabIndex={index}
 			data-key={cellKey}
 			onMouseEnter={handleMouseMove}
 			style={{ textAlign: aligment, ...cellStyle }}
 		>
-			<Resizeble setColStyle={setColStyle} colWidth={cellStyle && cellStyle.width} colKey={colKey}/>
+			<Resizeble
+				setColStyle={setColStyle}
+				colWidth={cellStyle && cellStyle.width}
+				colKey={colKey}
+			/>
 			<div className="content">
 				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
 			</div>

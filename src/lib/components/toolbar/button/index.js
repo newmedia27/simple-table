@@ -1,8 +1,5 @@
-import PrimaryStyle from './primary.style';
 import PropTypes from 'prop-types';
 import React from 'react';
-import SecondaryStyle from './secondary.style';
-import TertiaryStyle from './tertiary.style';
 import Tooltip from '../tooltip';
 import { isNil } from 'lodash';
 
@@ -73,13 +70,7 @@ const Button = ({
     type: 'button',
   };
 
-  if (type === 'primary') {
-    return <PrimaryStyle className={classes} {...props} />;
-  } else if (type === 'tertiary') {
-    return <TertiaryStyle className={classes} {...props} />;
-  } else {
-    return <SecondaryStyle className={classes} {...props} />;
-  }
+  return <button className={classes} {...props} />
 };
 
 Button.componentDescription = 'Standard extendable button.';

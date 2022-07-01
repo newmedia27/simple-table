@@ -25,7 +25,6 @@ export default class ColorTheme {
       { old: null, new: 'crumbsBorder' },
       { old: null, new: 'tabsBorder' },
       { old: null, new: 'accordionBorder' },
-
       // Danger
       { old: null, new: 'danger' },
       { old: null, new: 'textOnDanger' },

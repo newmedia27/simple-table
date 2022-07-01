@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 
 const dropdownStyle = props => css`
   .rich-text-toolbar .editor-controls .control-row &.dropdown-button {

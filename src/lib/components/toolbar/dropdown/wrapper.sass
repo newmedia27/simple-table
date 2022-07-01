@@ -1,0 +1,113 @@
+@import ../../../utils/theme.config
+@import ../../../utils/z-indexes
+
+.dropdown__wrapper
+    display: block
+    position: absolute
+    border-radius: 5px
+    background-color: $textOnPrimary
+    border: 2px solid $border
+    color: $primary
+    z-index: getZI(dropDown)
+
+    .dropdown-content
+        > ul
+        &:first-of-type
+            border-top: none
+
+            > li
+            &:first-of-type
+                border-top-right-radius: 5px
+                border-top-left-radius: 5px
+
+        &:last-of-type
+            > li
+            &:last-of-type
+                border-bottom-right-radius: 5px
+                border-bottom-left-radius: 5px
+
+    ul
+        margin: 0
+        padding: 0
+        list-style: none
+        border-top: 1px solid $primary
+
+        li
+            padding: 10px 20px
+            cursor: pointer
+
+        a
+            text-decoration: none
+            white-space: nowrap
+            color: $primary
+
+            svg
+                fill: $primary
+
+        &:hover
+            background: $primary
+            color: $textOnPrimary
+
+            svg
+                fill: $textOnPrimary
+
+            &.danger
+                color: $danger
+                filter: saturate(150%)
+
+            svg
+                fill: $danger
+
+            a
+                color: $danger
+
+            a
+                color: $textOnPrimary
+
+        &.danger
+            background: $danger
+            color: $danger
+
+            svg
+                fill: $danger
+
+            a
+                color: $danger
+
+    &:before,
+    &:after
+        content: ''
+        position: absolute
+        top: -10px
+        width: 0
+        height: 0
+        border-style: solid
+        border-color: transparent transparent $textOnPrimary transparent
+
+    &:before
+        border-width: 0 12px 12px
+        border-color: transparent transparent $border transparent
+
+    &:after
+        border-width: 0 10px 10px
+        border-color: transparent transparent $textOnPrimary transparent
+
+.left
+    left: 10px
+
+    &:before
+        top: -12px
+        left: 8px
+
+    &:after
+        left: 10px
+
+.right
+    right: 10px
+
+    &:before
+        top: -12px
+        right: 8px
+
+    &:after
+        right: 10px

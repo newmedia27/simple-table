@@ -7,7 +7,7 @@ body
 code
 	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",monospace
 
-.button
+.button__edit
 	display: none
 	position: absolute
 	top: 0
@@ -32,7 +32,8 @@ code
 	display: flex
 	margin-bottom: 10px
 	&__wrapper
-		display: block
+		display: flex
+		align-items: center
 		width: calc(100% - 20px)
 		margin: 0 auto
 		padding: 10px 0
@@ -40,11 +41,16 @@ code
 		margin-right: 10px
 		list-style: none
 		&>button
-			width: 20px
-			height: 20px
+			width: 30px
+			height: 30px
 			background: none
 			border: 1px solid black
 			border-radius: 5px
+			font-size: 16px
+			padding: 0
+			display: flex
+			align-items: center
+			justify-content: center
 			&:hover
 				cursor: pointer
 

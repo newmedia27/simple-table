@@ -123,7 +123,7 @@ export default function RenderTable(props) {
 						))}
 					</tbody>
 				</table>
-				<button className="button" onClick={handleModalChange}>
+				<button className="button__edit" onClick={handleModalChange}>
 					Edit
 				</button>
 			</div>

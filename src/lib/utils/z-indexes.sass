@@ -1,0 +1,9 @@
+$blocks: "codeBlockIcon", "scrollableTrackVertical", "scrollableThumbVertic","widgetOverlayRootLevel", "widget", "flexGrid", "blockSection", "subHeader","messages", "header", "headerSearchIcon", "headerMenu", "headerMobileMenu","headerSearchMenu", "dropDown", "modal", "modalOverlay", "modalOverlayModal","widgetOverlay", "widgetSelectorOverlay"
+
+@function getZI($type)
+	$i: 0
+	@each $block in $blocks
+		$i: $i + 1
+		@if $type == $block
+			@return $i * 10
+	@return $i

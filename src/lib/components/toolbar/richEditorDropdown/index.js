@@ -2,7 +2,6 @@ import DropdownBtn from "../dropdownBtn";
 import Icon from "../icon";
 import PropTypes from "prop-types";
 import React from "react";
-import style from "./dropdown.style";
 
 export default class RichEditorDropdown extends React.Component {
   constructor(props) {
@@ -47,7 +46,7 @@ export default class RichEditorDropdown extends React.Component {
       <React.Fragment>
         {icon ? <Icon name={icon} /> : null}
         {name ? <span style={style}>{name}</span> : null}
-        <Icon name='chevron-down-sld' />
+        {/* <Icon name='chevron-down-sld' /> */}
       </React.Fragment>
     );
   }
@@ -60,7 +59,7 @@ export default class RichEditorDropdown extends React.Component {
       buttonContent: this.renderBtnContent(),
       dropdownOpen: this.state.open,
       dropdownOrientation: this.state.orientation,
-      dropdownTop: 42,
+      // dropdownTop: 42,
       onButtonClick: () => this.handleButtonClick(),
       styles: this.state,
       ...(!this.props.allowInput && { onMouseDown: e => e.preventDefault() }),

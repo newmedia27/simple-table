@@ -1,0 +1,90 @@
+@import ../../../utils/theme.config
+@import ../../../utils/z-indexes
+
+div.tooltip
+  border-radius: 5px
+  background-color: $pageBackground
+  color: $textOnPageBackground
+  border: 2px solid $border
+  box-shadow: 2px 2px 14px -7px grey
+  z-index: getZI(modalOverlayModal) + 100
+  padding: 6px 12px
+  white-space: pre-wrap
+  width: max-content
+
+  &:before,
+  &:after
+    content: ''
+    position: absolute
+    width: 0
+    height: 0
+    border-style: solid
+
+    &:before
+      border-width: 12px
+
+    &:after
+      border-width: 10px
+
+    &.lg
+      font-size: 14px
+      line-height: 18px
+
+    &.md
+      font-size: 12px
+      line-height: 14px
+
+    &.sm
+      font-size: 11px
+      line-height: 12px
+      padding: 4px 8px
+
+      :before
+        border-width: 8px
+
+      :after
+        border-width: 6px
+
+    &.top
+      &:before
+        top: 100%
+        border-color: $border transparent transparent transparent
+        border-bottom-width: 0
+
+      &:after
+        top: 100%
+        border-color: $pageBackground transparent transparent transparent
+        border-bottom-width: 0
+
+    &.right
+      &:before
+        right: 100%
+        border-color: transparent $border transparent transparent
+        border-left-width: 0
+
+      &:after
+        right: 100%
+        border-color: transparent $pageBackground transparent transparent
+        border-left-width: 0
+
+    &.bottom
+      &:before
+        bottom: 100%
+        border-color: transparent transparent $border transparent
+        border-top-width: 0
+
+      &:after
+        bottom: 100%
+        border-color: transparent transparent $pageBackground transparent
+        border-top-width: 0
+
+    &.left
+      &:before
+        left: 100%
+        border-color: transparent transparent transparent $border
+        border-right-width: 0
+
+      &:after
+        left: 100%
+        border-color: transparent transparent transparent $pageBackground
+        border-right-width: 0
