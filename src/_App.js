@@ -15,7 +15,7 @@ const initialModal = {
 	tableSchema: null,
 }
 
-export default function Wrapper({ children }) {
+export default function App({ children }) {
 	const [modal, setModal] = useState(initialModal)
 	console.log("cmponent has been included!!!")
 	return (
