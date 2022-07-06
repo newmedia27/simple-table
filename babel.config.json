@@ -1,0 +1,16 @@
+{
+	"presets": [
+		[
+			"@babel/env",
+			{
+				"loose": true,
+				"bugfixes": true,
+				"shippedProposals": true
+			}
+		],
+		["@babel/react", { "runtime": "automatic" }],
+		"@linaria"
+	],
+	"plugins": ["@babel/transform-runtime"],
+	"exclude": "node_modules/**"
+}
