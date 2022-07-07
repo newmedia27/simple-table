@@ -25,7 +25,7 @@
 		"@testing-library/user-event": "^13.5.0",
 		"classnames": "^2.3.1",
 		"draft-convert": "^2.1.12",
-		"draft-js": "0.11.7",
+		"draft-js": "0.10.5",
 		"draft-js-export-html": "^1.4.1",
 		"draftail": "^1.4.1",
 		"draftjs-conductor": "^2.2.0",
@@ -36,11 +36,9 @@
 		"node-sass": "^7.0.1",
 		"off-color": "^2.0.0",
 		"postcss": "^8.4.13",
-		"react-data-grid": "^7.0.0-beta.13",
 		"react": "^16.14.0",
 		"react-dom": "^16.14.0",
 		"react-scripts": "5.0.1",
-		"react-table": "^7.8.0",
 		"rollup": "^2.71.1",
 		"rollup-plugin-copy": "^3.4.0",
 		"rollup-plugin-copy-merge": "^0.3.3",
@@ -52,12 +50,11 @@
 		"web-vitals": "^2.1.4"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"start": "cp demo/index.js src/index.js && cp demo/App.js src/App.js &&react-scripts start",
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"build:app": "react-scripts build && rollup --config --no-stdin",
-		"build:lib": "rollup --config --no-stdin"
+		"build:lib": "cp prod/index.js src/index.js && cp pro/App.js src/App.js && rollup --config --no-stdin"
 	},
 	"eslintConfig": {
 		"extends": [

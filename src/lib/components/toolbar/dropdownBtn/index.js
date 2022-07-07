@@ -44,7 +44,6 @@ const DropdownBtn = ({
 		size: props.buttonSize,
 		type: props.buttonType,
 	}
-	console.log(props, "PROPS")
 	return (
 		<div
 			ref={ref}
