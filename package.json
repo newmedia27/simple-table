@@ -51,7 +51,7 @@
 		"build": "react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"build:lib": "cp prod/index.js src/index.js && cp pro/App.js src/App.js && rollup --config --no-stdin"
+		"build:lib": "cp prod/index.js src/index.js && cp prod/App.js src/App.js && rollup --config --no-stdin"
 	},
 	"eslintConfig": {
 		"extends": [
