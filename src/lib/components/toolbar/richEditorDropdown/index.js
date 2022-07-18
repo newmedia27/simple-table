@@ -55,10 +55,12 @@ export default class RichEditorDropdown extends React.Component {
     // Conditionally render the DropdownBtn after component mounts because
     // DropdownBtn uses useLayoutEffect which causes a warning with ssr
     if (!this.state.showDropdown) return null;
+    const {className} = this.props
     const dropdownProps = {
       buttonContent: this.renderBtnContent(),
       dropdownOpen: this.state.open,
       dropdownOrientation: this.state.orientation,
+      className,
       // dropdownTop: 42,
       onButtonClick: () => this.handleButtonClick(),
       styles: this.state,

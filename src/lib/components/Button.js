@@ -89,6 +89,7 @@ export default (props) => {
 			editor={props.editor}
 			onSelect={onSelected}
 			key={"insertTable"}
+      className="Draftail-ToolbarButton ToolbarButton"
 		/>
 	)
 }

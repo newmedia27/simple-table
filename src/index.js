@@ -1,5 +1,3 @@
-import React from "react"
-import ReactDOM from "react-dom"
 import iconLibrary from "./lib/utils/iconLIbrary"
 import { config } from "@fortawesome/fontawesome-svg-core"
 import "@fortawesome/fontawesome-svg-core/styles.css"

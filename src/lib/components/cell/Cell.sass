@@ -1,7 +1,18 @@
-td.content
+td.Content
+    position: relative
     &:hover
         cursor: pointer
-        .border
+        .Border
             z-index: 3
             &_right
                 width: 5px
+.ContentEditor
+    .DraftEditor-root, .public-DraftEditor-content
+        text-align: inherit
+    .DraftEditor-editorContainer
+        text-align: inherit
+
+        .public-DraftStyleDefault-block
+            text-align: inherit
+.active
+    background: rgba(0, 213, 255, .5)

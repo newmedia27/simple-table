@@ -74,12 +74,12 @@ export default function RenderTable(props) {
 
 	return (
 		<>
-			<div className="wrapper" ref={wrapperRef}>
+			<div className="RenderTableWrapper" ref={wrapperRef}>
 				<table
 					key={tableKey}
 					id={tableKey}
 					border={1}
-					className="RenderTableWrapper"
+					className="RenderTable"
 				>
 					<tbody>
 						{schema.map((row, i) => (
@@ -92,9 +92,13 @@ export default function RenderTable(props) {
 												key={j}
 												data-position={`${tableKey}-${i}-${j}`}
 												style={{ width: initialCellWidth }}
+                        className="EmptyContent"
 											>
+                        <div className="Border Border_top" />
+                        <div className="Border Border_left" />
+                        <div className="Border Border_right" />
+                        <div className="Border Border_bottom" />
 												<div
-													className="content"
 													style={{ minHeight: "16px" }}
 												/>
 											</td>
@@ -103,17 +107,18 @@ export default function RenderTable(props) {
 									const options = getStateToHtmlOptions(cell.contentState)
 									const content = stateToHTML(cell.contentState, options)
 									const aligment = cell?.aligment || "center"
+                  console.log(cell?.aligment,'ALIGMENT');
 									return (
 										<td
 											key={cell.cellKey}
 											style={{ width, textAlign: aligment }}
-											className="content"
+											className="Content"
 										>
-											<div className="border border_top" />
-											<div className="border border_left" />
-											<div className="border border_right" />
-											<div className="border border_bottom" />
-											<div className="content" style={{ minHeight: "16px" }}>
+											<div className="Border Border_top" />
+											<div className="Border Border_left" />
+											<div className="Border Border_right" />
+											<div className="Border Border_bottom" />
+											<div className="ContentEditor" style={{ minHeight: "16px" }}>
 												{parser(content.replace(/\n/g, ""))}
 											</div>
 										</td>
@@ -123,7 +128,7 @@ export default function RenderTable(props) {
 						))}
 					</tbody>
 				</table>
-				<button className="button__edit" onClick={handleModalChange}>
+				<button type="button" className="ButtonEdit" onClick={handleModalChange}>
 					Edit
 				</button>
 			</div>

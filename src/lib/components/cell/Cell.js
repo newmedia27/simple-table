@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useCallback, useMemo } from "react"
-import Editor from "@draft-js-plugins/editor"
-import { RichUtils } from "draft-js"
+import { Editor, RichUtils } from "draft-js"
 import { getSelectionInlineStyle } from "draftjs-utils"
 import "draft-js/dist/Draft.css"
 import classNames from "classnames"
@@ -95,9 +94,9 @@ export default function Cell({
 	}
 
 	const handleBlur = (e) => {
-		if (active === cellKey) {
-			setActive("")
-		}
+		// if (active === cellKey) {
+		// 	setActive("")
+		// } TODO:
 	}
 
 	const handleMouseMove = (e) => {
@@ -108,8 +107,8 @@ export default function Cell({
 
 	return (
 		<td
-			className={classNames("content", {
-				active: activeGroup,
+			className={classNames("Content", {
+				'active': activeGroup,
 			})}
 			onFocus={handleFocus}
 			onBlur={handleBlur}
@@ -123,9 +122,15 @@ export default function Cell({
 				colWidth={cellStyle && cellStyle.width}
 				colKey={colKey}
 			/>
-			<div className="content">
-				<Editor ref={ref} editorState={editorState} onChange={handleChange} />
+			<div className="ContentEditor">
+				<Editor
+          ref={ref}
+          editorState={editorState}
+          onChange={handleChange}
+        />
 			</div>
 		</td>
 	)
 }
+
+
