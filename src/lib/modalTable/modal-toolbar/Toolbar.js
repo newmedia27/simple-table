@@ -8,6 +8,7 @@ const Toolbar = ({
 	alignment,
 	selectGroup,
 	setGroupAligment,
+
 }) => {
 	const name = "alignment"
 
@@ -21,6 +22,7 @@ const Toolbar = ({
 		activeOption: dropdownOptions[name].activeOption(alignment?alignment: 'justify'),
 		controlWidth: dropdownOptions[name].controlWidth,
 		dropdownWidth: dropdownOptions[name].dropdownWidth,
+    className: dropdownOptions[name]?.className ?? '',
 		key: name,
 		list: availableAlignments,
 		onSelect: handleSelect,

@@ -53,7 +53,7 @@ const Button = ({
   };
 
   const classes = [
-    'button',
+    'Button',
     danger && 'danger',
     disabled && 'disabled',
     type,

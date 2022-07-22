@@ -83,12 +83,13 @@ export default (props) => {
 			render={(rest) => <TableGrid {...rest} />}
 			controlWidth={40}
 			dropdownWidth={160}
-			icon={"table-sld"}
+			name={"table"}
 			method={"tableDropdown"}
-			activeOption={{ display: { icon: "table-sld" } }}
+			activeOption={{ display: { name: "table" } }}
 			editor={props.editor}
 			onSelect={onSelected}
 			key={"insertTable"}
+      className="Draftail-ToolbarButton ToolbarButton"
 		/>
 	)
 }

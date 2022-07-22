@@ -1,5 +1,4 @@
 import React from 'react'
-import './wrapper.sass'
 
 const DropdownWrapper = ({children}) => {
   return (

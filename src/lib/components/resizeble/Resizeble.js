@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react"
-import "./resizeble.sass"
 
 const Resizeble = ({ colStyle, setColStyle, colWidth, colKey }) => {
 	const [start, setStart] = useState(null)
@@ -10,7 +9,7 @@ const Resizeble = ({ colStyle, setColStyle, colWidth, colKey }) => {
 	}
 
 	function doDrag(e) {
-		const width = start.startWidth + e.clientX - start.startX 
+		const width = start.startWidth + e.clientX - start.startX
 		setColStyle((s) => ({
 			...s,
 			[colKey]: { ...s[colKey], width },
@@ -35,17 +34,17 @@ const Resizeble = ({ colStyle, setColStyle, colWidth, colKey }) => {
 			document.documentElement.addEventListener("mouseup", stopDrag, false)
 		}
 	}, [start])
-	console.log(colKey,'WIDTH')
-	return (
+
+  return (
 		<>
-			<div className="border border_top" />
+			<div className="Border Border_top" />
 			<div
 				ref={ref}
 				onMouseDown={handleMouseDown}
-				className="border border_right"
+				className="Border Border_right"
 			/>
-			<div className="border border_left" />
-			<div className="border border_bottom" />
+			<div className="Border Border_left" />
+			<div className="Border Border_bottom" />
 		</>
 	)
 }

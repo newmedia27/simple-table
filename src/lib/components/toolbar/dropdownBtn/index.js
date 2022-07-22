@@ -2,7 +2,6 @@ import Button from "../button"
 import Dropdown from "../dropdown"
 import PropTypes from "prop-types"
 import React, { useLayoutEffect, useRef, useState } from "react"
-import "./dropdown.sass"
 import useClickOutside from "use-onclickoutside"
 import { isElement } from "lodash"
 

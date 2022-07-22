@@ -63,6 +63,7 @@ export const dropdownOptions = {
     dropdownWidth: 40,
     list: availableAlignments,
     method: 'listDropdown',
+    className: 'Toolbar Toolbar__modal'
   },
 }
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import Icon from '../../../atoms/icon';
-import Style from './scrollMessage.style';
 
 const ScrollMessage = props => {
   const [message, setMessage] = useState(false);
@@ -16,9 +15,9 @@ const ScrollMessage = props => {
   ].filter(Boolean).join(' ');
 
   return (
-    <Style className={classes}>
+    <div className={classes}>
       <div>Scroll for more <Icon name="arrow-down-sld" /></div>
-    </Style>
+    </div>
   );
 };
 

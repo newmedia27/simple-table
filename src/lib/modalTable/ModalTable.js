@@ -14,12 +14,12 @@ import {
 	useRef,
 	Children,
 	cloneElement,
+  useCallback,
 } from "react"
 import { ModalCtx } from "../../App"
 import Cell from "../components/cell/Cell"
 import { BLOCK_TYPES, HEADER_TYPES, inlineStylesTypes } from "../constants"
 import Toolbar from "./modal-toolbar/Toolbar"
-import "./table.sass"
 
 const initialCell = {
 	rowKey: "",
@@ -226,11 +226,11 @@ export default function ModalTable({ closeModal }) {
 			})
 		}
 	}
-	console.log(colStyle && colStyle, "ACTIVE")
-	return (
+
+  return (
 		<div className="table__wrapper">
-			<div className="toolbar__wrapper">
-				<ul className="toolbar">
+			<div className="Toolbar__wrapper">
+				<ul className="Toolbar">
 					{tolbarStyleButtons.map((e) => (
 						<li key={e.dataStyle}>
 							<button
@@ -243,7 +243,8 @@ export default function ModalTable({ closeModal }) {
 							</button>
 						</li>
 					))}
-					<ul className="toolbar">
+				</ul>
+        <ul className="Toolbar">
 						{blockTypes.map((e) => (
 							<li key={e.label}>
 								<button
@@ -252,7 +253,7 @@ export default function ModalTable({ closeModal }) {
 									data-active={
 										headerKey[active] && headerKey[active] === e.style
 									}
-									className="toolbar__button"
+									className="Toolbar__button"
 								>
 									{e.label}
 								</button>
@@ -266,7 +267,6 @@ export default function ModalTable({ closeModal }) {
 						setGroupAligment={setGroupAligment}
 						selectGroup={selectGroup}
 					/>
-				</ul>
 			</div>
 			<EditTableWrapper
 				setSelectGroup={setSelectGroup}
@@ -277,8 +277,10 @@ export default function ModalTable({ closeModal }) {
 				active={active}
 				setCol={setCol}
 				setCell={setCell}
+        setRow={setRow}
 				colStyle={colStyle}
 				setColStyle={setColStyle}
+        aligment={aligment}
 			>
 				{({ clicking, enterHandler }) => (
 					<>
@@ -324,7 +326,9 @@ function EditTableWrapper({
 	active,
 	setCell,
 	setCol,
+  setRow,
 	setColStyle,
+  aligment,
 	colStyle,
 }) {
 	const ref = useRef(null)
@@ -388,8 +392,9 @@ function EditTableWrapper({
 
 	const handleContext = (e) => {
 		e.preventDefault()
-		setContextMenu({ isOpen: true, target: e.currentTarget, event: e })
+		setContextMenu({ isOpen: true, target: e.currentTarget, event: {...e} })
 	}
+
 	function handleCol({ currentTarget }) {
 		const type = currentTarget.getAttribute("data-value")
 		const colArr = [...col]
@@ -400,6 +405,7 @@ function EditTableWrapper({
 			const cellKey = genKey()
 			insertObject[cellKey] = {
 				...initialCell,
+        aligment,
 				rowKey: row[i],
 				colKey: newColKey,
 				cellKey,
@@ -414,13 +420,49 @@ function EditTableWrapper({
 		} else {
 			colArr.push(newColKey)
 		}
-		setCol(colArr)
+
+    setCol(colArr)
 		setCell((s) => ({
 			...s,
 			...insertObject,
 		}))
 		setContextMenu((s) => ({ ...s, isOpen: false }))
 	}
+
+  function handleRow({ currentTarget }){
+    const rowArr = [...row]
+    const type = currentTarget.getAttribute("data-value")
+		const needItems = col.length
+		const newRowKey = genKey()
+		const insertObject = {}
+		for (let i = 0; i < needItems; i++) {
+			const cellKey = genKey()
+			insertObject[cellKey] = {
+				...initialCell,
+        aligment,
+				rowKey: newRowKey,
+				colKey: col[i],
+				cellKey,
+			}
+		}
+
+		if (active) {
+			const { rowKey } = cell[active]
+			const curIndex = row.findIndex((e) => e === rowKey)
+			const updateIndex = curIndex + +type
+			rowArr.splice(updateIndex, 0, newRowKey)
+		} else {
+			rowArr.push(newRowKey)
+		}
+
+    setRow(rowArr)
+		setCell((s) => ({
+			...s,
+			...insertObject,
+		}))
+		setContextMenu((s) => ({ ...s, isOpen: false }))
+  }
+
 	const handleSelect = ({ target }) => {
 		if (!active) {
 			return null
@@ -438,9 +480,10 @@ function EditTableWrapper({
 		setContextMenu((s) => ({ ...s, isOpen: false }))
 	}
 
-	useEffect(() => {
-		if (ref.current && !colStyle && col) {
+  const getColStyle = useCallback(()=>{
+    if (ref.current && col) {
 			const tableWidth = ref.current.clientWidth
+      console.log(tableWidth,'TABLE__WIDTH');
 			const cellWidth = tableWidth / col.length
 			const resizeState = col.reduce((acc, e) => {
 				if (!acc[e]) {
@@ -450,8 +493,12 @@ function EditTableWrapper({
 				return acc
 			}, {})
 			setColStyle(resizeState)
-		}
-	}, [ref.current, colStyle, col])
+    }
+  }, [ref.current, col, setColStyle])
+
+	useEffect(() => {
+    getColStyle()
+	}, [getColStyle])
 
 	// const setAlignmentInTable = (alignment, content, blocks) => {
 	// 	// because cell style data is kept in the tableShape array stored with
@@ -494,6 +541,12 @@ function EditTableWrapper({
 				</button>
 				<button onClick={handleCol} data-value={1}>
 					add col after
+				</button>
+        <button onClick={handleRow} data-value={0}>
+					add row before
+				</button>
+				<button onClick={handleRow} data-value={1}>
+					add row after
 				</button>
 				<button onClick={handleSelect} data-object="col">
 					select col

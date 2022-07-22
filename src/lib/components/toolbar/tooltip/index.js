@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import './tooltip.sass';
 
 const Tooltip = props => {
   // ref to the tooltip
